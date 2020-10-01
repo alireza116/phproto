@@ -34,6 +34,12 @@ const Map = (props) => {
         });
         props.handleExtentFeatures(fInExtent);
       });
+      function onEachFeature(feature, layer) {
+        // does this feature have a property named popupContent?
+        if (feature.properties && feature.properties.entity) {
+          layer.bindPopup(feature.properties.entity);
+        }
+      }
       let geojsonMarkerOptions = {
         radius: 5,
         fillColor: "#ff7800",
@@ -46,6 +52,7 @@ const Map = (props) => {
         pointToLayer: function (feature, latlng) {
           return L.circleMarker(latlng, geojsonMarkerOptions);
         },
+        onEachFeature: onEachFeature,
       }).addTo(mapRef.current);
     }
   }, [props.geojson]);

@@ -144,6 +144,7 @@ const BarChart = (props) => {
         .attr("y", function (d) {
           return y(d.emotion);
         })
+        .attr("fill", "teal")
         .attr("height", y.bandwidth());
     }
   }, [props.data]);
