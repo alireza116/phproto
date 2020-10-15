@@ -4,10 +4,13 @@ import NavBar from "./components/nav/nav";
 import Map from "./components/map/map";
 import MessageList from "./components/messagelist/messagelist";
 import BarChart from "./components/barchart/barchart";
+import TimeLine from "./components/timeline/timeline";
+import moment from "moment";
 import logo from "./logo.svg";
 import axios from "axios";
 import * as turf from "@turf/turf";
 import "./App.css";
+import LineChart from "./components/timeline/timeline";
 
 class App extends Component {
   state = {
@@ -15,6 +18,7 @@ class App extends Component {
     post: "",
     geojson: null,
     extentFeatures: [],
+    timeCounts: {},
     avgEmotions: null,
   };
 
@@ -35,6 +39,12 @@ class App extends Component {
     Object.keys(avgEmotions).forEach((k) => {
       avgEmotions[k] = avgEmotions[k] / features.length;
     });
+    let timeCounts = {};
+    features.forEach((f) => {
+      let d = f.properties.date.format("YYYY-MM-DD HH");
+      timeCounts[d] ? timeCounts[d]++ : (timeCounts[d] = 1);
+    });
+    this.setState({ timeCounts: timeCounts });
     this.setState({ avgEmotions: avgEmotions });
     this.setState({ extentFeatures: features });
   };
@@ -49,9 +59,11 @@ class App extends Component {
       });
       geojson.forEach((f) => {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
+        f["properties"]["date"] = moment(f["properties"]["date_time"]);
       });
-      this.handleExtentFeatures(geojson);
+      console.log(geojson[0]);
       this.setState({ geojson: geojson });
+      this.handleExtentFeatures(geojson);
     });
   }
 
@@ -62,8 +74,8 @@ class App extends Component {
         <Container
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(4,1fr)",
-            gridTemplateRows: "repeat(2,1fr)",
+            gridTemplateColumns: "repeat(12,1fr)",
+            gridTemplateRows: "repeat(12,1fr)",
             height: "92%",
             margin: "0 auto",
             width: "100%",
@@ -75,10 +87,8 @@ class App extends Component {
         >
           <div
             style={{
-              gridColumnStart: "1",
-              gridColumnEnd: "4",
-              gridRowStart: "1",
-              gridRowEnd: "3",
+              gridColumn: "1 / 10",
+              gridRow: "1 / 8",
             }}
           >
             <Map
@@ -88,15 +98,29 @@ class App extends Component {
           </div>
           <div
             style={{
-              gridColumn: "4",
-              gridRow: "1",
+              gridColumn: "1 / 10",
+              gridRow: "8 / 13",
+            }}
+          >
+            <LineChart data={this.state.timeCounts}></LineChart>
+          </div>
+          <div
+            style={{
+              gridColumn: "10 / 13",
+              gridRow: "1 / 6",
               overflow: "scroll",
-              padding: "10px",
+              padding: "30px",
             }}
           >
             <MessageList messages={this.state.extentFeatures}></MessageList>
           </div>
-          <div style={{ gridColumn: "4", gridRow: "2" }}>
+          <div
+            style={{
+              gridColumn: "10 /  13",
+              gridRow: "6 / 13",
+              padding: "30px",
+            }}
+          >
             <BarChart data={this.state.avgEmotions}></BarChart>
           </div>
         </Container>

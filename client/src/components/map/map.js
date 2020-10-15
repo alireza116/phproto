@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
+import MarkerCluster from "leaflet.markercluster";
 
 const Map = (props) => {
   const mapRef = useRef(null);
@@ -36,8 +37,8 @@ const Map = (props) => {
       });
       function onEachFeature(feature, layer) {
         // does this feature have a property named popupContent?
-        if (feature.properties && feature.properties.entity) {
-          layer.bindPopup(feature.properties.entity);
+        if (feature.properties) {
+          layer.bindPopup(feature.properties.text);
         }
       }
       let geojsonMarkerOptions = {
@@ -48,12 +49,17 @@ const Map = (props) => {
         opacity: 1,
         fillOpacity: 0.8,
       };
+      let markers = L.markerClusterGroup();
+
       geojsonLayer.current = L.geoJSON(props.geojson, {
-        pointToLayer: function (feature, latlng) {
-          return L.circleMarker(latlng, geojsonMarkerOptions);
-        },
+        // pointToLayer: function (feature, latlng) {
+        //   return L.circleMarker(latlng, geojsonMarkerOptions);
+        // },
         onEachFeature: onEachFeature,
-      }).addTo(mapRef.current);
+      });
+      // .addTo(mapRef.current);
+      markers.addLayer(geojsonLayer.current);
+      mapRef.current.addLayer(markers);
     }
   }, [props.geojson]);
 

@@ -1,6 +1,15 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
 
+let colorMap = {
+  Anger: "red",
+  Disgust: "purple",
+  Fear: "green",
+  Joy: "orange",
+  Sadness: "blue",
+  Surprise: "teal",
+};
+
 /* Component */
 const BarChart = (props) => {
   const d3Container = useRef(null);
@@ -35,7 +44,7 @@ const BarChart = (props) => {
 
       const leftMarginPct = 0.2;
       const rightMarginpct = 0.08;
-      const topMarginPct = 0.15;
+      const topMarginPct = 0.05;
       const bottomMarginPct = 0.05;
 
       const margins = {
@@ -144,7 +153,9 @@ const BarChart = (props) => {
         .attr("y", function (d) {
           return y(d.emotion);
         })
-        .attr("fill", "teal")
+        .attr("fill", function (d) {
+          return colorMap[d.emotion];
+        })
         .attr("height", y.bandwidth());
     }
   }, [props.data]);
