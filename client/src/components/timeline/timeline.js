@@ -15,6 +15,19 @@ const LineChart = (props) => {
   const width = props.width || "100%";
   const height = props.height || "100%";
   let parseDate = d3.timeParse("%Y-%m-%d %H");
+  let yAxisTier = (max) => {
+    if (max < 50) {
+      return 50;
+    } else if (max < 200) {
+      return 200;
+    } else if (max < 500) {
+      return 500;
+    } else if (max < 1000) {
+      return 1000;
+    } else {
+      return max;
+    }
+  };
 
   let data = Object.keys(props.data).map((k) => {
     return { date: parseDate(k), value: props.data[k] };
@@ -99,7 +112,6 @@ const LineChart = (props) => {
   useEffect(() => {
     if (d3Container.current) {
       //   let g = d3.select(".gContainer");
-      console.log(data);
 
       var x = d3
         .scaleTime()
@@ -108,7 +120,7 @@ const LineChart = (props) => {
 
       var y = d3
         .scaleLinear()
-        .domain([0, d3.max(data, (d) => d.value)])
+        .domain([0, yAxisTier(d3.max(data, (d) => d.value))])
         .nice()
         .range([h.current - margins.current.bottom, margins.current.top]);
 
