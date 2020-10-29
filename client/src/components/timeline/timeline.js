@@ -16,10 +16,22 @@ const LineChart = (props) => {
   const height = props.height || "100%";
   let parseDate = d3.timeParse("%Y-%m-%d %H");
   let yAxisTier = (max) => {
+    if (max < 5) {
+      return 5;
+    }
+    if (max < 10) {
+      return 10;
+    }
+    if (max < 25) {
+      return 25;
+    }
     if (max < 50) {
       return 50;
-    } else if (max < 200) {
-      return 200;
+    }
+    if (max < 100) {
+      return 100;
+    } else if (max < 250) {
+      return 250;
     } else if (max < 500) {
       return 500;
     } else if (max < 1000) {
@@ -131,7 +143,7 @@ const LineChart = (props) => {
         .y((d) => y(d.value));
 
       xaxis.current.call(d3.axisBottom(x));
-      yaxis.current.call(d3.axisLeft(y));
+      yaxis.current.transition().call(d3.axisLeft(y));
 
       lineChart.current
         .datum(data)

@@ -27,6 +27,16 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MessageList(props) {
   const classes = useStyles();
+  if (props.sortMessages) {
+    props.messages.sort((a, b) => {
+      // console.log(a);
+      // console.log(b);
+      // console.log(props.sortMessages);
+      return (
+        +b.properties[props.sortMessages] - +a.properties[props.sortMessages]
+      );
+    });
+  }
 
   let listItems = props.messages.slice(0, 100).map((f, i) => {
     return (

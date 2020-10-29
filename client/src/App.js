@@ -63,6 +63,7 @@ class App extends Component {
     extentFeatures: [],
     timeCounts: {},
     avgEmotions: null,
+    sortMessages: null,
   };
 
   handleExtentFeatures = (features) => {
@@ -90,6 +91,11 @@ class App extends Component {
     this.setState({ timeCounts: timeCounts });
     this.setState({ avgEmotions: avgEmotions });
     this.setState({ extentFeatures: features });
+  };
+
+  handleSort = (sort) => {
+    console.log(sort);
+    this.setState({ sortMessages: sort });
   };
 
   handleFeatureSearch = (feature, layerType, geojson) => {
@@ -166,11 +172,17 @@ class App extends Component {
             <LineChart data={this.state.timeCounts}></LineChart>
           </div>
           <div className={classes.messages}>
-            <MessageList messages={this.state.extentFeatures}></MessageList>
+            <MessageList
+              sortMessages={this.state.sortMessages}
+              messages={this.state.extentFeatures}
+            ></MessageList>
           </div>
           <div className={classes.pie}>
             {/* <BarChart data={this.state.avgEmotions}></BarChart> */}
-            <PieChart data={this.state.avgEmotions}></PieChart>
+            <PieChart
+              handleSort={this.handleSort}
+              data={this.state.avgEmotions}
+            ></PieChart>
           </div>
         </Container>
       </div>

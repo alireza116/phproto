@@ -52,6 +52,7 @@ const Map = (props) => {
 
   useEffect(() => {
     if (props.geojson) {
+      mapRef.current.setMaxBounds(mapRef.current.getBounds());
       mapRef.current.on("moveend", function () {
         let bounds = mapRef.current.getBounds();
         let fInExtent = props.geojson.filter((f) => {
