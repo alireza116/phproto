@@ -11,6 +11,7 @@ import axios from "axios";
 import * as turf from "@turf/turf";
 import "./App.css";
 import LineChart from "./components/timeline/timeline";
+import PieChart from "./components/pieChart/pieChart"
 
 class App extends Component {
   state = {
@@ -49,6 +50,42 @@ class App extends Component {
     this.setState({ extentFeatures: features });
   };
 
+  handleFeatureSearch = (feature,layerType,geojson) =>{
+    console.log(feature);
+    let filteredFeatures;
+    if (layerType==="polygon" || layerType==="rectangle"){
+      feature = feature.toGeoJSON();
+      feature = turf.polygon(feature.geometry.coordinates)
+
+      filteredFeatures = geojson.filter((f)=>{
+        let p = turf.point(f.geometry.coordinates)
+        return turf.booleanPointInPolygon(p,feature);
+      })
+
+    } else if (layerType === "circle"){
+      console.log(feature);
+      let theCenterPt = feature.getLatLng();
+
+        let center = [theCenterPt.lng,theCenterPt.lat]; 
+        console.log(center);
+
+        let theRadius = feature.getRadius();
+        console.log(theRadius);
+        let options = {steps: 64, units: 'meters'};  //Change steps to 4 to see what it does.
+        let turfCircle = turf.circle(center, theRadius, options);
+
+        filteredFeatures = geojson.filter((f)=>{
+          let p = turf.point(f.geometry.coordinates)
+          return turf.booleanPointInPolygon(p,turfCircle);
+        })
+    }
+
+    if (filteredFeatures.length > 0){
+      this.handleExtentFeatures(filteredFeatures);
+    }
+
+  }
+
   componentDidMount() {
     axios.get("/api/data").then((res) => {
       let geojson = res.data.filter((f) => {
@@ -61,7 +98,7 @@ class App extends Component {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
         f["properties"]["date"] = moment(f["properties"]["date_time"]);
       });
-      console.log(geojson[0]);
+      // console.log(geojson);
       this.setState({ geojson: geojson });
       this.handleExtentFeatures(geojson);
     });
@@ -94,6 +131,7 @@ class App extends Component {
             <Map
               geojson={this.state.geojson}
               handleExtentFeatures={this.handleExtentFeatures}
+              handleFeatureSearch = {this.handleFeatureSearch}
             ></Map>
           </div>
           <div
@@ -121,7 +159,8 @@ class App extends Component {
               padding: "30px",
             }}
           >
-            <BarChart data={this.state.avgEmotions}></BarChart>
+            {/* <BarChart data={this.state.avgEmotions}></BarChart> */}
+            <PieChart data={this.state.avgEmotions}></PieChart>
           </div>
         </Container>
       </div>

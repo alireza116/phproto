@@ -1,28 +1,37 @@
 import React, { useEffect, useRef } from "react";
 import L from "leaflet";
 import MarkerCluster from "leaflet.markercluster";
+import LeafletDraw from "leaflet-draw";
 
 const Map = (props) => {
   const mapRef = useRef(null);
+  const geojsonLayer = React.useRef(null);
+  const editableLayer = React.useRef(null);
+
   useEffect(() => {
+
     mapRef.current = L.map("map", {
       center: [0, 0],
-      zoom: 2,
-      layers: [
-        L.tileLayer(
-          "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
-          {
-            maxZoom: 20,
-            attribution:
-              '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
-          }
-        ),
-      ],
+      zoom: 2
     });
+
+    L.tileLayer(
+      "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
+      {
+        maxZoom: 20,
+        attribution:
+          '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
+      }
+    ).addTo(mapRef.current);
+
+    editableLayer.current = new L.FeatureGroup()
+    mapRef.current.addLayer(editableLayer.current);
+
+    //  mapRef.current.addControl(drawControl);
   }, []);
 
   //   add marker
-  const geojsonLayer = React.useRef(null);
+
   useEffect(() => {
     if (props.geojson) {
       mapRef.current.on("moveend", function () {
@@ -60,6 +69,34 @@ const Map = (props) => {
       // .addTo(mapRef.current);
       markers.addLayer(geojsonLayer.current);
       mapRef.current.addLayer(markers);
+      mapRef.current.on(L.Draw.Event.CREATED, function (e) {
+        var type = e.layerType,
+            layer = e.layer;
+    
+        layer.on("click",(f)=>{
+              // console.log(layerGeojson);
+              console.log(type);
+              props.handleFeatureSearch(layer,type,props.geojson)
+
+            });
+    
+        editableLayer.current.addLayer(layer);
+    });
+
+      
+      let drawControl = new L.Control.Draw({
+        draw:{
+          polyline:false,
+          marker: false,
+          circlemarker:false
+        },
+        edit: {
+          featureGroup: editableLayer.current, //REQUIRED!!
+          remove: false
+      }
+      });
+      mapRef.current.addControl(drawControl);
+
     }
   }, [props.geojson]);
 
