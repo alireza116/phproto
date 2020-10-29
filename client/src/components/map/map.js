@@ -10,9 +10,6 @@ const Map = (props) => {
   const editableLayer = React.useRef(null);
   const layerControl = React.useRef(null);
   useEffect(() => {
-
-
-
     let grey = L.tileLayer(
       "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
       {
@@ -20,31 +17,34 @@ const Map = (props) => {
         attribution:
           '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors',
       }
-    )
+    );
     // .addTo(mapRef.current);
 
-    var mapInk = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 20,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    });
+    var mapInk = L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
+        maxZoom: 20,
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      }
+    );
 
     mapRef.current = L.map("map", {
       center: [0, 0],
       zoom: 2,
-      layers: [grey,mapInk]
+      layers: [grey, mapInk],
     });
 
     var baseMaps = {
-      "Grayscale": grey,
-      "Streets": mapInk
+      Grayscale: grey,
+      Streets: mapInk,
     };
 
     layerControl.current = L.control.layers(baseMaps).addTo(mapRef.current);
 
-
-    editableLayer.current = new L.FeatureGroup()
+    editableLayer.current = new L.FeatureGroup();
     mapRef.current.addLayer(editableLayer.current);
-    layerControl.current.addOverlay(editableLayer.current,"Drawn Features");
+    layerControl.current.addOverlay(editableLayer.current, "Drawn Features");
     //  mapRef.current.addControl(drawControl);
   }, []);
 
@@ -77,48 +77,50 @@ const Map = (props) => {
         fillOpacity: 0.8,
       };
       let markers = L.markerClusterGroup();
-      layerControl.current.addOverlay(markers, "Marker Clusters")
+      layerControl.current.addOverlay(markers, "Marker Clusters");
       geojsonLayer.current = L.geoJSON(props.geojson, {
         onEachFeature: onEachFeature,
       });
-      
+
       // .addTo(mapRef.current);
       markers.addLayer(geojsonLayer.current);
 
-      let heat = L.heatLayer(props.geojson.map((f)=>{return [f.geometry.coordinates[1],f.geometry.coordinates[0],10]}), {radius: 25})
-      layerControl.current.addOverlay(heat,"Heat Map");
+      let heat = L.heatLayer(
+        props.geojson.map((f) => {
+          return [f.geometry.coordinates[1], f.geometry.coordinates[0], 10];
+        }),
+        { radius: 25 }
+      );
+      layerControl.current.addOverlay(heat, "Heat Map");
       // layerControl.current.unSelectLayer(heat)
       // heat.addTo(mapRef.current);
 
       mapRef.current.addLayer(markers);
       mapRef.current.on(L.Draw.Event.CREATED, function (e) {
         var type = e.layerType,
-            layer = e.layer;
-    
-        layer.on("click",(f)=>{
-              // console.log(layerGeojson);
-              console.log(type);
-              props.handleFeatureSearch(layer,type,props.geojson)
+          layer = e.layer;
 
-            });
-    
+        layer.on("click", (f) => {
+          // console.log(layerGeojson);
+          console.log(type);
+          props.handleFeatureSearch(layer, type, props.geojson);
+        });
+
         editableLayer.current.addLayer(layer);
-    });
+      });
 
-      
       let drawControl = new L.Control.Draw({
-        draw:{
-          polyline:false,
+        draw: {
+          polyline: false,
           marker: false,
-          circlemarker:false
+          circlemarker: false,
         },
         edit: {
           featureGroup: editableLayer.current, //REQUIRED!!
-          remove: false
-      }
+          remove: false,
+        },
       });
       mapRef.current.addControl(drawControl);
-
     }
   }, [props.geojson]);
 

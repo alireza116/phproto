@@ -11,8 +11,50 @@ import axios from "axios";
 import * as turf from "@turf/turf";
 import "./App.css";
 import LineChart from "./components/timeline/timeline";
-import PieChart from "./components/pieChart/pieChart"
+import PieChart from "./components/pieChart/pieChart";
+import { makeStyles, withStyles } from "@material-ui/core/styles";
 
+let borderColor = "grey";
+const styles = (theme) => ({
+  root: {
+    display: "grid",
+    gridTemplateColumns: "repeat(12,1fr)",
+    gridTemplateRows: "repeat(12,1fr)",
+    height: "92%",
+    margin: "0 auto",
+    width: "100%",
+    padding: 0,
+    margin: 0,
+  },
+  map: {
+    gridColumn: "1 / 10",
+    gridRow: "1 / 8",
+    border: "solid",
+    borderColor: borderColor,
+  },
+  line: {
+    gridColumn: "1 / 10",
+    gridRow: "8 / 13",
+    padding: "10px",
+    border: "solid",
+    borderColor: borderColor,
+  },
+  messages: {
+    gridColumn: "10 / 13",
+    gridRow: "1 / 7",
+    overflow: "scroll",
+    padding: "30px",
+    border: "solid",
+    borderColor: borderColor,
+  },
+  pie: {
+    gridColumn: "10 /  13",
+    gridRow: "7 / 13",
+    padding: "30px",
+    border: "solid",
+    borderColor: borderColor,
+  },
+});
 class App extends Component {
   state = {
     response: "",
@@ -50,41 +92,39 @@ class App extends Component {
     this.setState({ extentFeatures: features });
   };
 
-  handleFeatureSearch = (feature,layerType,geojson) =>{
+  handleFeatureSearch = (feature, layerType, geojson) => {
     console.log(feature);
     let filteredFeatures;
-    if (layerType==="polygon" || layerType==="rectangle"){
+    if (layerType === "polygon" || layerType === "rectangle") {
       feature = feature.toGeoJSON();
-      feature = turf.polygon(feature.geometry.coordinates)
+      feature = turf.polygon(feature.geometry.coordinates);
 
-      filteredFeatures = geojson.filter((f)=>{
-        let p = turf.point(f.geometry.coordinates)
-        return turf.booleanPointInPolygon(p,feature);
-      })
-
-    } else if (layerType === "circle"){
+      filteredFeatures = geojson.filter((f) => {
+        let p = turf.point(f.geometry.coordinates);
+        return turf.booleanPointInPolygon(p, feature);
+      });
+    } else if (layerType === "circle") {
       console.log(feature);
       let theCenterPt = feature.getLatLng();
 
-        let center = [theCenterPt.lng,theCenterPt.lat]; 
-        console.log(center);
+      let center = [theCenterPt.lng, theCenterPt.lat];
+      console.log(center);
 
-        let theRadius = feature.getRadius();
-        console.log(theRadius);
-        let options = {steps: 64, units: 'meters'};  //Change steps to 4 to see what it does.
-        let turfCircle = turf.circle(center, theRadius, options);
+      let theRadius = feature.getRadius();
+      console.log(theRadius);
+      let options = { steps: 64, units: "meters" }; //Change steps to 4 to see what it does.
+      let turfCircle = turf.circle(center, theRadius, options);
 
-        filteredFeatures = geojson.filter((f)=>{
-          let p = turf.point(f.geometry.coordinates)
-          return turf.booleanPointInPolygon(p,turfCircle);
-        })
+      filteredFeatures = geojson.filter((f) => {
+        let p = turf.point(f.geometry.coordinates);
+        return turf.booleanPointInPolygon(p, turfCircle);
+      });
     }
 
-    if (filteredFeatures.length > 0){
+    if (filteredFeatures.length > 0) {
       this.handleExtentFeatures(filteredFeatures);
     }
-
-  }
+  };
 
   componentDidMount() {
     axios.get("/api/data").then((res) => {
@@ -105,60 +145,30 @@ class App extends Component {
   }
 
   render() {
+    const { classes } = this.props;
+
     return (
       <div className="app" style={{ height: "100%" }}>
         <NavBar height={"8%"} className="navBar"></NavBar>
         <Container
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(12,1fr)",
-            gridTemplateRows: "repeat(12,1fr)",
-            height: "92%",
-            margin: "0 auto",
-            width: "100%",
-            padding: 0,
-            margin: 0,
-          }}
+          className={classes.root}
           id="root-container"
           maxWidth={false}
         >
-          <div
-            style={{
-              gridColumn: "1 / 10",
-              gridRow: "1 / 8",
-            }}
-          >
+          <div className={classes.map}>
             <Map
               geojson={this.state.geojson}
               handleExtentFeatures={this.handleExtentFeatures}
-              handleFeatureSearch = {this.handleFeatureSearch}
+              handleFeatureSearch={this.handleFeatureSearch}
             ></Map>
           </div>
-          <div
-            style={{
-              gridColumn: "1 / 10",
-              gridRow: "8 / 13",
-            }}
-          >
+          <div className={classes.line}>
             <LineChart data={this.state.timeCounts}></LineChart>
           </div>
-          <div
-            style={{
-              gridColumn: "10 / 13",
-              gridRow: "1 / 6",
-              overflow: "scroll",
-              padding: "30px",
-            }}
-          >
+          <div className={classes.messages}>
             <MessageList messages={this.state.extentFeatures}></MessageList>
           </div>
-          <div
-            style={{
-              gridColumn: "10 /  13",
-              gridRow: "6 / 13",
-              padding: "30px",
-            }}
-          >
+          <div className={classes.pie}>
             {/* <BarChart data={this.state.avgEmotions}></BarChart> */}
             <PieChart data={this.state.avgEmotions}></PieChart>
           </div>
@@ -168,4 +178,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default withStyles(styles)(App);

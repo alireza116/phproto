@@ -32,7 +32,7 @@ const LineChart = (props) => {
       const height = svg.current.node().getBoundingClientRect().height;
 
       const leftMarginPct = 0.05;
-      const rightMarginpct = 0.08;
+      const rightMarginpct = 0.02;
       const topMarginPct = 0.05;
       const bottomMarginPct = 0.15;
 
