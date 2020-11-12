@@ -74,9 +74,19 @@ class App extends Component {
     avgEmotions: null,
     sortMessages: null,
     topicTerms: null,
+    selectedTopic: -1,
+  };
+
+  handleSelectedTopic = (topicid) => {
+    this.setState({ selectedTopic: topicid });
   };
 
   handleExtentFeatures = (features) => {
+    if (this.state.selectedTopic != -1) {
+      features = features.filter((f) => {
+        return f.properties.topic == this.state.selectedTopic;
+      });
+    }
     let avgEmotions = {
       Anger: 0.0,
       Disgust: 0.0,
@@ -191,6 +201,7 @@ class App extends Component {
             <TopicTreeMap
               data={this.state.extentFeatures}
               topicTerms={this.state.topicTerms}
+              handleSelectedTopic={this.handleSelectedTopic}
             ></TopicTreeMap>
           </div>
           <div className={classes.messages}>

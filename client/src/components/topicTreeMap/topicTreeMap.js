@@ -13,13 +13,15 @@ const TreeMap = (props) => {
   let features = props.data;
   //   console.log(features);
   //   console.log(topicTerms);
-  let data = {
-    root: {
-      topic: "topics",
-      color: "hsl(193, 70%, 50%)",
-      children: [],
-    },
+  let handleClick = (node) => {
+    if (!(node.data.topic == "All Topics")) {
+      props.handleSelectedTopic(node.data.topic);
+    } else {
+      //   console.log(node);
+      props.handleSelectedTopic(-1);
+    }
   };
+  let data = { topic: "All Topics" };
 
   let topicCounts = {};
   if (features != null) {
@@ -49,20 +51,21 @@ const TreeMap = (props) => {
       value="count"
       margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
       label={(t) => {
-        // console.log(t);
-        return t.data.terms;
+        return t.data.terms ? t.data.terms : "All Topics";
       }}
       tooltip={(t) => {
-        return t.node.data.topic
-          ? `Topic terms:\n ${topicTerms[t.node.data.topic]
+        return t.node.data.topic !== "All Topics"
+          ? `Topic terms: ${topicTerms[t.node.data.topic]
               .slice(0, 5)
               .join(", ")}`
-          : "";
+          : "All Topics";
       }}
       labelSkipSize={12}
       labelTextColor={{ from: "color", modifiers: [["darker", 1.2]] }}
       parentLabelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
       borderColor={{ from: "color", modifiers: [["darker", 0.1]] }}
+      animate={false}
+      onClick={handleClick}
     />
   );
 };
