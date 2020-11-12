@@ -1,4 +1,6 @@
 import React, { useRef, useEffect } from "react";
+import detectPeaks from "../../functions/detectpeaks";
+import * as slayer from "slayer";
 import * as d3 from "d3";
 
 /* Component */
@@ -12,9 +14,14 @@ const LineChart = (props) => {
   const lineChart = useRef(null);
   const margins = useRef(null);
   const line = useRef(null);
+  const circles = useRef(null);
+  const x = useRef(null);
+  const y = useRef(null);
   const width = props.width || "100%";
   const height = props.height || "100%";
+
   let parseDate = d3.timeParse("%Y-%m-%d %H");
+
   let yAxisTier = (max) => {
     if (max < 5) {
       return 5;
@@ -41,11 +48,6 @@ const LineChart = (props) => {
     }
   };
 
-  let data = Object.keys(props.data).map((k) => {
-    return { date: parseDate(k), value: props.data[k] };
-  });
-  data.sort((a, b) => a.date - b.date);
-
   useEffect(() => {
     if (d3Container.current) {
       //svg returned by this component
@@ -71,31 +73,32 @@ const LineChart = (props) => {
       w.current = width;
       h.current = height;
 
-      var x = d3
-        .scaleTime()
-        .domain(d3.extent(data, (d) => d.date))
-        .range([margins.current.left, w.current - margins.current.right]);
+      // x.current = d3
+      //   .scaleTime()
+      //   .domain(d3.extent(data, (d) => d.date))
+      //   .range([margins.current.left, w.current - margins.current.right]);
 
-      var y = d3
-        .scaleLinear()
-        .domain([0, d3.max(data, (d) => d.value)])
-        .nice()
-        .range([h.current - margins.current.bottom, margins.current.top]);
+      // y.current = d3
+      //   .scaleLinear()
+      //   .domain([0, d3.max(data, (d) => d.value)])
+      //   .nice()
+      //   .range([h.current - margins.current.bottom, margins.current.top]);
 
       xaxis.current = svg.current
         .append("g")
         .attr("class", "x-axis")
         .attr("clip-path", "url(#clip)")
-        .attr("transform", `translate(0,${h.current - margins.current.bottom})`)
-        .call(d3.axisBottom(x).tickSizeOuter(0));
+        .attr(
+          "transform",
+          `translate(0,${h.current - margins.current.bottom})`
+        );
 
       yaxis.current = svg.current
         .append("g")
         .attr("class", "y-axis")
-        .attr("transform", `translate(${margins.current.left},0)`)
-        .call(d3.axisLeft(y));
+        .attr("transform", `translate(${margins.current.left},0)`);
 
-      var defs = svg.current
+      svg.current
         .append("defs")
         .append("clipPath")
         .attr("id", "clip")
@@ -108,8 +111,8 @@ const LineChart = (props) => {
       line.current = d3
         .line()
         .defined((d) => !isNaN(d.value))
-        .x((d) => x(d.date))
-        .y((d) => y(d.value));
+        .x((d) => x.current(d.date))
+        .y((d) => y.current(d.value));
 
       lineChart.current = svg.current
         .append("path")
@@ -124,13 +127,20 @@ const LineChart = (props) => {
   useEffect(() => {
     if (d3Container.current) {
       //   let g = d3.select(".gContainer");
+      let data = Object.keys(props.data).map((k) => {
+        return { date: parseDate(k), value: props.data[k] };
+      });
+      data.sort((a, b) => a.date - b.date);
+      let vals = data.map((d) => d.value);
+      let peaks;
+      // let peaks = data.length > 0 ? detectPeaks(vals) : [];
 
-      var x = d3
+      x.current = d3
         .scaleTime()
         .domain(d3.extent(data, (d) => d.date))
         .range([margins.current.left, w.current - margins.current.right]);
 
-      var y = d3
+      y.current = d3
         .scaleLinear()
         .domain([0, yAxisTier(d3.max(data, (d) => d.value))])
         .nice()
@@ -139,17 +149,98 @@ const LineChart = (props) => {
       line.current = d3
         .line()
         .defined((d) => !isNaN(d.value))
-        .x((d) => x(d.date))
-        .y((d) => y(d.value));
+        .x((d) => x.current(d.date))
+        .y((d) => y.current(d.value));
 
-      xaxis.current.call(d3.axisBottom(x));
-      yaxis.current.transition().call(d3.axisLeft(y));
+      xaxis.current.call(d3.axisBottom(x.current));
+      yaxis.current.transition().call(d3.axisLeft(y.current));
 
       lineChart.current
         .datum(data)
         .transition()
         .attr("class", "line")
         .attr("d", line.current);
+
+      // slayer({ minPeakDistance: 2 })
+      //   .fromArray(vals)
+      //   .then((spikes) => {
+      //     peaks = spikes.map((p) => p.x);
+      //     svg.current.selectAll("circle").remove();
+      //     circles.current = svg.current
+      //       .selectAll("circle")
+      //       .data(peaks.map((p) => data[p]));
+
+      //     circles.current = circles.current
+      //       .enter()
+      //       .append("circle")
+      //       .attr("cx", function (d) {
+      //         return x.current(d.date);
+      //       })
+      //       .attr("cy", function (d) {
+      //         return y.current(d.value) - 10;
+      //       })
+      //       .attr("r", 5)
+      //       .attr("fill", "teal")
+      //       .on("mouseenter", function (d) {
+      //         console.log(d);
+      //       });
+
+      //     circles.current.exit().remove();
+      //   });
+
+      peaks = detectPeaks(vals);
+
+      // svg.current.selectAll("circle").remove();
+      // circles.current = svg.current
+      //   .selectAll("circle")
+      //   .data(peaks.map((p) => data[p]));
+
+      // circles.current = circles.current
+      //   .enter()
+      //   .append("circle")
+      //   .attr("cx", function (d) {
+      //     return x.current(d.date);
+      //   })
+      //   .attr("cy", function (d) {
+      //     return y.current(d.value) - 10;
+      //   })
+      //   .attr("r", 5)
+      //   .attr("fill", "teal")
+      //   .on("mouseenter", function (d) {
+      //     console.log(d);
+      //   });
+
+      d3.selectAll(".arrow").remove();
+
+      circles.current = svg.current
+        .selectAll(".arrow")
+        .data(peaks.map((p) => data[p]));
+
+      circles.current = circles.current
+        .enter()
+        .append("text")
+        .attr("class", "arrow")
+        .attr("x", function (d) {
+          // console.log(d);
+          return x.current(d.date);
+        })
+        .attr("y", function (d) {
+          return y.current(d.value) - 10;
+        })
+        .attr("font-family", "FontAwesome")
+        .attr("text-anchor", "middle")
+        .attr("font-color", "teal")
+        .attr("font-size", function (d) {
+          return "30px";
+        })
+        .text(function (d) {
+          return "\uf063";
+        })
+        .on("mouseenter", function (d) {
+          console.log(d);
+        });
+
+      circles.current.exit().remove();
 
       if (svg.current) {
         svg.current.call(zoom);
@@ -171,7 +262,7 @@ const LineChart = (props) => {
         svg.call(zooming);
 
         function zoomed() {
-          x.range(
+          x.current.range(
             [margins.current.left, w.current - margins.current.right].map((d) =>
               d3.event.transform.applyX(d)
             )
@@ -179,11 +270,20 @@ const LineChart = (props) => {
 
           lineChart.current.attr("d", line.current);
 
-          svg.select(".x-axis").call(d3.axisBottom(x).tickSizeOuter(0));
+          xaxis.current.call(d3.axisBottom(x.current).tickSizeOuter(0));
+          // console.log(circles.current);
+          circles.current
+            .attr("x", function (d) {
+              // console.log("Asdasd");
+              return x.current(d.date);
+            })
+            .attr("y", function (d) {
+              return y.current(d.value) - 10;
+            });
         }
       }
     }
-  }, [data]);
+  }, [props.data]);
 
   return (
     <div

@@ -8,11 +8,22 @@ const fs = require("fs");
 
 console.log(__dirname);
 
-let rawdata = fs.readFileSync(path.join(__dirname, "public/vietEmotGeo.json"), {
-  encoding: "utf-8",
-});
-console.log(rawdata.slice(3927900, 3927938));
+let rawdata = fs.readFileSync(
+  path.join(__dirname, "public/vietEmotGeoTopic.json"),
+  {
+    encoding: "utf-8",
+  }
+);
+
+let topicTermsDict = fs.readFileSync(
+  path.join(__dirname, "public/topicDict.json"),
+  {
+    encoding: "utf-8",
+  }
+);
+
 let geojson = JSON.parse(rawdata);
+topicTermsDict = JSON.parse(topicTermsDict);
 
 // geojson.forEach((f) => {
 //   let date = moment(f["properties"]["date_time"]);
@@ -29,6 +40,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/api/data", (req, res) => {
   res.json(geojson);
 });
+
+app.get("/api/topics", (req, res) => res.json(topicTermsDict));
 
 if (process.env.NODE_ENV === "production") {
   // Serve any static files

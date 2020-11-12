@@ -12,6 +12,7 @@ import * as turf from "@turf/turf";
 import "./App.css";
 import LineChart from "./components/timeline/timeline";
 import PieChart from "./components/pieChart/pieChart";
+import TopicTreeMap from "./components/topicTreeMap/topicTreeMap";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 let borderColor = "grey";
@@ -32,24 +33,32 @@ const styles = (theme) => ({
     border: "solid",
     borderColor: borderColor,
   },
-  line: {
-    gridColumn: "1 / 10",
-    gridRow: "8 / 13",
-    padding: "10px",
-    border: "solid",
-    borderColor: borderColor,
-  },
   messages: {
     gridColumn: "10 / 13",
-    gridRow: "1 / 7",
+    gridRow: "1 / 8",
     overflow: "scroll",
     padding: "30px",
     border: "solid",
     borderColor: borderColor,
   },
+  line: {
+    gridColumn: "1 / 6",
+    gridRow: "8 / 13",
+    padding: "10px",
+    border: "solid",
+    borderColor: borderColor,
+  },
+  treemap: {
+    gridColumn: "6/ 10",
+    gridRow: "8 / 13",
+    padding: "10px",
+    border: "solid",
+    borderColor: borderColor,
+  },
+
   pie: {
     gridColumn: "10 /  13",
-    gridRow: "7 / 13",
+    gridRow: "8 / 13",
     padding: "30px",
     border: "solid",
     borderColor: borderColor,
@@ -64,6 +73,7 @@ class App extends Component {
     timeCounts: {},
     avgEmotions: null,
     sortMessages: null,
+    topicTerms: null,
   };
 
   handleExtentFeatures = (features) => {
@@ -148,6 +158,11 @@ class App extends Component {
       this.setState({ geojson: geojson });
       this.handleExtentFeatures(geojson);
     });
+
+    axios.get("/api/topics").then((res) => {
+      console.log(res.data[1]);
+      this.setState({ topicTerms: res.data });
+    });
   }
 
   render() {
@@ -164,12 +179,19 @@ class App extends Component {
           <div className={classes.map}>
             <Map
               geojson={this.state.geojson}
+              featureName={this.state.selectedFeature}
               handleExtentFeatures={this.handleExtentFeatures}
               handleFeatureSearch={this.handleFeatureSearch}
             ></Map>
           </div>
           <div className={classes.line}>
             <LineChart data={this.state.timeCounts}></LineChart>
+          </div>
+          <div className={classes.treemap}>
+            <TopicTreeMap
+              data={this.state.extentFeatures}
+              topicTerms={this.state.topicTerms}
+            ></TopicTreeMap>
           </div>
           <div className={classes.messages}>
             <MessageList
