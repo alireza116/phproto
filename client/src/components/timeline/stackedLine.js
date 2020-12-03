@@ -12,6 +12,32 @@ let colorMap = {
   Surprise: "teal",
 };
 
+let yAxisTier = (max) => {
+  if (max < 5) {
+    return 5;
+  }
+  if (max < 10) {
+    return 10;
+  }
+  if (max < 25) {
+    return 25;
+  }
+  if (max < 50) {
+    return 50;
+  }
+  if (max < 100) {
+    return 100;
+  } else if (max < 250) {
+    return 250;
+  } else if (max < 500) {
+    return 500;
+  } else if (max < 1000) {
+    return 1000;
+  } else {
+    return max;
+  }
+};
+
 /* Component */
 const StackedLineChart = (props) => {
   const d3Container = useRef(null);
@@ -111,12 +137,15 @@ const StackedLineChart = (props) => {
         .y0((d) => y(d[0]))
         .y1((d) => y(d[1]));
     }
-  }, []);
+  }, [props.tabValue]);
 
   useEffect(() => {
     if (d3Container.current) {
+      console.log(props.tabValue);
       props.data.forEach((d) => {
-        d.date = parseDate(d.date);
+        if (typeof d.date == "string") {
+          d.date = parseDate(d.date);
+        }
       });
       let data = props.data;
       data.sort((a, b) => a.date - b.date);
@@ -134,7 +163,7 @@ const StackedLineChart = (props) => {
 
       y.current = d3
         .scaleLinear()
-        .domain([0, d3.max(series, (d) => d3.max(d, (d) => d[1]))])
+        .domain([0, yAxisTier(d3.max(series, (d) => d3.max(d, (d) => d[1])))])
         .nice()
         .range([h.current - margins.current.bottom, margins.current.top]);
 
@@ -150,6 +179,7 @@ const StackedLineChart = (props) => {
         .selectAll(".layer")
         .data(series)
         .join("path")
+        .transition()
         .attr("class", "layer")
         .attr("d", area.current)
         .attr("fill", ({ key }) => colorMap[key])

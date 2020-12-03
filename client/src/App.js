@@ -8,14 +8,19 @@ import * as d3 from "d3";
 import axios from "axios";
 import * as turf from "@turf/turf";
 import "./App.css";
+import Tabs from "@material-ui/core/Tabs";
+import Tab from "@material-ui/core/Tab";
 import LineChart from "./components/timeline/timeline";
 import StackedLine from "./components/timeline/stackedLine";
 import StackedArea from "./components/timeline/stackedArea";
 import PieChart from "./components/pieChart/pieChart";
 import TopicTreeMap from "./components/topicTreeMap/topicTreeMap";
+import AppBar from "@material-ui/core/AppBar";
+
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 let borderColor = "grey";
+let parseDate = d3.timeParse("%Y-%m-%d %H");
 
 let colorMap = {
   Anger: "red",
@@ -72,6 +77,19 @@ const styles = (theme) => ({
     border: "solid",
     borderColor: borderColor,
   },
+  lineTabBar: {
+    width: "100%",
+    height: "15%",
+    margin: 0,
+  },
+  lineTabs: {
+    backgroundColor: "grey",
+  },
+  linePanels: {
+    margin: 0,
+    width: "100%",
+    height: "85%",
+  },
 });
 class App extends Component {
   state = {
@@ -85,6 +103,12 @@ class App extends Component {
     sortMessages: null,
     topicTerms: null,
     selectedTopic: -1,
+    tabValue: 0,
+  };
+
+  handleLineChartTabChange = (event, newValue) => {
+    console.log(newValue);
+    this.setState({ tabValue: newValue });
   };
 
   handleSelectedTopic = (topicid) => {
@@ -105,21 +129,8 @@ class App extends Component {
       Sadness: 0.0,
       Surprise: 0.0,
     };
-    // features.forEach((feature) => {
-    // Object.keys(avgEmotions).forEach((k) => {
-    //   avgEmotions[k] += feature.properties[k];
-    // });
-    // });
 
     let timeCounts = {};
-    // let emotionTimeCounts = {
-    //   Anger: {},
-    //   Disgust: {},
-    //   Fear: {},
-    //   Joy: {},
-    //   Sadness: {},
-    //   Surprise: {},
-    // };
     let emotionTimeCounts = {};
     features.forEach((f) => {
       let d = f.properties.date.format("YYYY-MM-DD HH");
@@ -251,7 +262,11 @@ class App extends Component {
 
     return (
       <div className="app" style={{ height: "100%" }}>
-        <NavBar height={"8%"} className="navBar"></NavBar>
+        <NavBar
+          height={"8%"}
+          className="navBar"
+          count={this.state.extentFeatures.length}
+        ></NavBar>
         <Container
           className={classes.root}
           id="root-container"
@@ -266,13 +281,29 @@ class App extends Component {
             ></Map>
           </div>
           <div className={classes.line}>
-            {/* <LineChart data={this.state.timeCounts}></LineChart> */}
-            <StackedLine data={this.state.emotionTimeData}></StackedLine>
-            {/* <StackedArea
-              data={this.state.emotionTimeData}
-              keys={["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"]}
-              colors={colorMap}
-            ></StackedArea> */}
+            <AppBar position="static" className={classes.lineTabBar}>
+              <Tabs
+                className={classes.lineTabs}
+                variant="fullWidth"
+                value={this.state.tabValue}
+                onChange={this.handleLineChartTabChange}
+                aria-label="simple tabs example"
+              >
+                <Tab label="Total + Peaks" />
+                <Tab label="Emotions" />
+              </Tabs>
+            </AppBar>
+            {/* */}
+            <div className={classes.linePanels}>
+              {this.state.tabValue === 0 ? (
+                <LineChart data={this.state.timeCounts}></LineChart>
+              ) : (
+                <StackedLine
+                  tabValue={this.state.tabValue}
+                  data={this.state.emotionTimeData}
+                ></StackedLine>
+              )}
+            </div>
           </div>
           <div className={classes.treemap}>
             <TopicTreeMap
