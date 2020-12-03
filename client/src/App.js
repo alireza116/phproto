@@ -96,6 +96,7 @@ class App extends Component {
     topicTerms: null,
     selectedTopic: -1,
     tabValue: 0,
+    mapFilter: false,
   };
 
   emotionColorMap = {
@@ -234,7 +235,7 @@ class App extends Component {
       });
       geojson.forEach((f) => {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
-        f["properties"]["date"] = moment(f["properties"]["date_time"]);
+        f["properties"]["date"] = moment(f["properties"]["created_at"]);
       });
       // console.log(geojson);
       this.setState({ geojson: geojson });
@@ -264,6 +265,7 @@ class App extends Component {
         >
           <div className={classes.map}>
             <Map
+              mapFilter={this.state.mapFilter}
               geojson={this.state.geojson}
               featureName={this.state.selectedFeature}
               handleExtentFeatures={this.handleExtentFeatures}

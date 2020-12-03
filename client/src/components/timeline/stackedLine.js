@@ -94,7 +94,7 @@ const StackedLineChart = (props) => {
 
       const leftMarginPct = 0.05;
       const rightMarginpct = 0.02;
-      const topMarginPct = 0.05;
+      const topMarginPct = 0.15;
       const bottomMarginPct = 0.15;
 
       margins.current = {

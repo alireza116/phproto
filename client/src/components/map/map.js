@@ -54,14 +54,16 @@ const Map = (props) => {
     if (props.geojson) {
       mapRef.current.setMaxBounds(mapRef.current.getBounds());
       mapRef.current.on("moveend", function () {
-        let bounds = mapRef.current.getBounds();
-        let fInExtent = props.geojson.filter((f) => {
-          return bounds.contains([
-            f["geometry"]["coordinates"][1],
-            f["geometry"]["coordinates"][0],
-          ]);
-        });
-        props.handleExtentFeatures(fInExtent);
+        if (props.mapFilter) {
+          let bounds = mapRef.current.getBounds();
+          let fInExtent = props.geojson.filter((f) => {
+            return bounds.contains([
+              f["geometry"]["coordinates"][1],
+              f["geometry"]["coordinates"][0],
+            ]);
+          });
+          props.handleExtentFeatures(fInExtent);
+        }
       });
       function onEachFeature(feature, layer) {
         // does this feature have a property named popupContent?
