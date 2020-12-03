@@ -48,9 +48,9 @@ const PieChart = (props) => {
       slicesLabelsSkipAngle={10}
       slicesLabelsTextColor="#333333"
       // animate={true}
+      enableSliceLabels={false}
       motionStiffness={90}
       motionDamping={15}
-      enableSlicesLabels={false}
       onClick={handleClick}
     />
   );

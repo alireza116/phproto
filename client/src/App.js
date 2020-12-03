@@ -1,21 +1,30 @@
 import React, { Component } from "react";
-import { Container, Grid } from "@material-ui/core";
+import { Container } from "@material-ui/core";
 import NavBar from "./components/nav/nav";
 import Map from "./components/map/map";
 import MessageList from "./components/messagelist/messagelist";
-import BarChart from "./components/barchart/barchart";
-import TimeLine from "./components/timeline/timeline";
 import moment from "moment";
-import logo from "./logo.svg";
+import * as d3 from "d3";
 import axios from "axios";
 import * as turf from "@turf/turf";
 import "./App.css";
 import LineChart from "./components/timeline/timeline";
+import StackedLine from "./components/timeline/stackedLine";
+import StackedArea from "./components/timeline/stackedArea";
 import PieChart from "./components/pieChart/pieChart";
 import TopicTreeMap from "./components/topicTreeMap/topicTreeMap";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 
 let borderColor = "grey";
+
+let colorMap = {
+  Anger: "red",
+  Disgust: "purple",
+  Fear: "green",
+  Joy: "orange",
+  Sadness: "blue",
+  Surprise: "teal",
+};
 const styles = (theme) => ({
   root: {
     display: "grid",
@@ -71,6 +80,7 @@ class App extends Component {
     geojson: null,
     extentFeatures: [],
     timeCounts: {},
+    emotionTimeData: [],
     avgEmotions: null,
     sortMessages: null,
     topicTerms: null,
@@ -95,22 +105,83 @@ class App extends Component {
       Sadness: 0.0,
       Surprise: 0.0,
     };
-    features.forEach((feature) => {
+    // features.forEach((feature) => {
+    // Object.keys(avgEmotions).forEach((k) => {
+    //   avgEmotions[k] += feature.properties[k];
+    // });
+    // });
+
+    let timeCounts = {};
+    // let emotionTimeCounts = {
+    //   Anger: {},
+    //   Disgust: {},
+    //   Fear: {},
+    //   Joy: {},
+    //   Sadness: {},
+    //   Surprise: {},
+    // };
+    let emotionTimeCounts = {};
+    features.forEach((f) => {
+      let d = f.properties.date.format("YYYY-MM-DD HH");
+      if (!(d in emotionTimeCounts)) {
+        emotionTimeCounts[d] = {
+          Anger: 0,
+          Disgust: 0,
+          Fear: 0,
+          Joy: 0,
+          Sadness: 0,
+          Surprise: 0,
+        };
+      }
+      timeCounts[d] ? timeCounts[d]++ : (timeCounts[d] = 1);
+      let fEmotions = [];
+      let fEmotVals = [];
       Object.keys(avgEmotions).forEach((k) => {
-        avgEmotions[k] += feature.properties[k];
+        avgEmotions[k] += f.properties[k];
+        fEmotions.push({ emotion: k, value: f.properties[k] });
+        fEmotVals.push(f.properties[k]);
       });
+
+      let maxEmotIndex = fEmotVals.indexOf(d3.max(fEmotVals));
+      let maxEmotion = fEmotions[maxEmotIndex];
+      emotionTimeCounts[d][maxEmotion.emotion]++;
+      // ? emotionTimeCounts[d][maxEmotion.emotion]++
+      // : (emotionTimeCounts[d][maxEmotion.emotion] = 1);
     });
+
+    // Object.keys(emotionTimeCounts).forEach((emotion) => {
+    //   let emotionCounts = emotionTimeCounts[emotion];
+    //   emotionTimeCounts[emotion] = Object.keys(emotionCounts).map(
+    //     (dateValue) => {
+    //       return { x: dateValue, y: emotionCounts[dateValue] };
+    //     }
+    //   );
+    // });
+    // console.log(emotionTimeCounts);
+
+    let emotionTimeData = Object.keys(emotionTimeCounts).map((dateValue) => {
+      let d = { date: dateValue };
+      Object.keys(emotionTimeCounts[dateValue]).forEach((emot) => {
+        d[emot] = emotionTimeCounts[dateValue][emot];
+      });
+      Object.keys(avgEmotions).forEach((emot) => {
+        if (!(emot in d)) {
+          d[emot] = 0;
+        }
+      });
+      return d;
+    });
+
+    // console.log(emotionTimeData);
+
     Object.keys(avgEmotions).forEach((k) => {
       avgEmotions[k] = avgEmotions[k] / features.length;
     });
-    let timeCounts = {};
-    features.forEach((f) => {
-      let d = f.properties.date.format("YYYY-MM-DD HH");
-      timeCounts[d] ? timeCounts[d]++ : (timeCounts[d] = 1);
-    });
+
     this.setState({ timeCounts: timeCounts });
     this.setState({ avgEmotions: avgEmotions });
     this.setState({ extentFeatures: features });
+    this.setState({ emotionTimeData: emotionTimeData });
   };
 
   handleSort = (sort) => {
@@ -195,7 +266,13 @@ class App extends Component {
             ></Map>
           </div>
           <div className={classes.line}>
-            <LineChart data={this.state.timeCounts}></LineChart>
+            {/* <LineChart data={this.state.timeCounts}></LineChart> */}
+            <StackedLine data={this.state.emotionTimeData}></StackedLine>
+            {/* <StackedArea
+              data={this.state.emotionTimeData}
+              keys={["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"]}
+              colors={colorMap}
+            ></StackedArea> */}
           </div>
           <div className={classes.treemap}>
             <TopicTreeMap
