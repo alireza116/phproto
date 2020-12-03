@@ -9,19 +9,26 @@ import { Card, Divider } from "@material-ui/core";
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    maxWidth: 360,
+    // maxWidth: 360,
     margin: "0 auto",
-    padding: 0,
-    backgroundColor: theme.palette.background.paper,
+    padding: "10px",
+    // backgroundColor: "theme.palette.background.paper",
     overflow: "scroll",
   },
   nested: {
     paddingLeft: theme.spacing(4),
   },
-  card: {
-    width: "100%",
-    height: "100%",
-    overflow: "auto",
+  messages: {
+    backgroundColor: "#f0f0f0",
+    borderRadius: "10px",
+    marginBottom: "10px",
+    padding: "10px",
+    paddingTop: "2.5px",
+    paddingBottom: "2.5px",
+    borderLeft: "solid 5px",
+  },
+  messageText: {
+    fontFamily: "sans-serif",
   },
 }));
 
@@ -29,26 +36,39 @@ export default function MessageList(props) {
   const classes = useStyles();
   if (props.sortMessages) {
     props.messages.sort((a, b) => {
-      // console.log(a);
-      // console.log(b);
-      // console.log(props.sortMessages);
       return (
         +b.properties[props.sortMessages] - +a.properties[props.sortMessages]
       );
     });
   }
 
+  console.log(props.messages);
+  // let listItems = props.messages.slice(0, 100).map((f, i) => {
+  //   return (
+  //     <ListItem divider key={`li_${i}`} className={classes.message}>
+  //       <ListItemText primary={f.properties.text} key={`li_t_${i}`} />
+  //     </ListItem>
+  //   );
+  // });
   let listItems = props.messages.slice(0, 100).map((f, i) => {
     return (
-      <ListItem divider key={`li_${i}`} style={{ width: "100%" }}>
-        <ListItemText primary={f.properties.text} key={`li_t_${i}`} />
-      </ListItem>
+      <div
+        key={`li_t_${i}`}
+        className={classes.messages}
+        style={{
+          borderLeftColor:
+            props.emotionColorMap[f.properties.maxEmotion.emotion],
+        }}
+      >
+        <p key={`date_t_${i}`} className={classes.messageText}>
+          {f.properties.date_time}
+        </p>
+        <p key={`p_t_${i}`} className={classes.messageText}>
+          {f.properties.text}
+        </p>
+      </div>
     );
   });
 
-  return (
-    <List component="nav" className={classes.root}>
-      {listItems}
-    </List>
-  );
+  return <div className={classes.root}>{listItems}</div>;
 }

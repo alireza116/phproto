@@ -22,14 +22,6 @@ import { makeStyles, withStyles } from "@material-ui/core/styles";
 let borderColor = "grey";
 let parseDate = d3.timeParse("%Y-%m-%d %H");
 
-let colorMap = {
-  Anger: "red",
-  Disgust: "purple",
-  Fear: "green",
-  Joy: "orange",
-  Sadness: "blue",
-  Surprise: "teal",
-};
 const styles = (theme) => ({
   root: {
     display: "grid",
@@ -51,7 +43,7 @@ const styles = (theme) => ({
     gridColumn: "10 / 13",
     gridRow: "1 / 8",
     overflow: "scroll",
-    padding: "30px",
+    // padding: "30px",
     border: "solid",
     borderColor: borderColor,
   },
@@ -106,6 +98,15 @@ class App extends Component {
     tabValue: 0,
   };
 
+  emotionColorMap = {
+    Anger: "red",
+    Disgust: "purple",
+    Fear: "green",
+    Joy: "orange",
+    Sadness: "blue",
+    Surprise: "teal",
+  };
+
   handleLineChartTabChange = (event, newValue) => {
     console.log(newValue);
     this.setState({ tabValue: newValue });
@@ -155,20 +156,9 @@ class App extends Component {
 
       let maxEmotIndex = fEmotVals.indexOf(d3.max(fEmotVals));
       let maxEmotion = fEmotions[maxEmotIndex];
+      f.properties["maxEmotion"] = maxEmotion;
       emotionTimeCounts[d][maxEmotion.emotion]++;
-      // ? emotionTimeCounts[d][maxEmotion.emotion]++
-      // : (emotionTimeCounts[d][maxEmotion.emotion] = 1);
     });
-
-    // Object.keys(emotionTimeCounts).forEach((emotion) => {
-    //   let emotionCounts = emotionTimeCounts[emotion];
-    //   emotionTimeCounts[emotion] = Object.keys(emotionCounts).map(
-    //     (dateValue) => {
-    //       return { x: dateValue, y: emotionCounts[dateValue] };
-    //     }
-    //   );
-    // });
-    // console.log(emotionTimeCounts);
 
     let emotionTimeData = Object.keys(emotionTimeCounts).map((dateValue) => {
       let d = { date: dateValue };
@@ -314,12 +304,12 @@ class App extends Component {
           </div>
           <div className={classes.messages}>
             <MessageList
+              emotionColorMap={this.emotionColorMap}
               sortMessages={this.state.sortMessages}
               messages={this.state.extentFeatures}
             ></MessageList>
           </div>
           <div className={classes.pie}>
-            {/* <BarChart data={this.state.avgEmotions}></BarChart> */}
             <PieChart
               handleSort={this.handleSort}
               data={this.state.avgEmotions}
