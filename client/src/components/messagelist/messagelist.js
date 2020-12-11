@@ -42,14 +42,6 @@ export default function MessageList(props) {
     });
   }
 
-  console.log(props.messages);
-  // let listItems = props.messages.slice(0, 100).map((f, i) => {
-  //   return (
-  //     <ListItem divider key={`li_${i}`} className={classes.message}>
-  //       <ListItemText primary={f.properties.text} key={`li_t_${i}`} />
-  //     </ListItem>
-  //   );
-  // });
   let listItems = props.messages.slice(0, 100).map((f, i) => {
     return (
       <div

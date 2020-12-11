@@ -4,6 +4,7 @@ import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
+import Button from "@material-ui/core/Button";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -20,6 +21,9 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     backgroundColor: "grey",
   },
+  allTweetsButton: {
+    marginRight: "30px",
+  },
 }));
 
 export default function NavBar(props) {
@@ -32,6 +36,13 @@ export default function NavBar(props) {
           <Typography variant="h6" className={classes.title}>
             PHIMATICS
           </Typography>
+          <Button
+            variant="contained"
+            color="primary"
+            className={classes.allTweetsButton}
+          >
+            All Documents!
+          </Button>
           <Typography variant="h6">
             Count Tweets in view: {props.count}
           </Typography>

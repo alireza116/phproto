@@ -9,14 +9,16 @@ const fs = require("fs");
 console.log(__dirname);
 
 let rawdata = fs.readFileSync(
-  path.join(__dirname, "public/vietEmotGeoTopic_2.json"),
+  // path.join(__dirname, "public/vietEmotGeoTopic_2.json"),
+  path.join(__dirname, "public/vietEmotGeoTopic.json"),
   {
     encoding: "utf-8",
   }
 );
 
 let topicTermsDict = fs.readFileSync(
-  path.join(__dirname, "public/vietEmotGeoTopic2_topicDict.json"),
+  // path.join(__dirname, "public/vietEmotGeoTopic2_topicDict.json"),
+  path.join(__dirname, "public/topicDict.json"),
   {
     encoding: "utf-8",
   }

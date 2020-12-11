@@ -88,6 +88,7 @@ class App extends Component {
     response: "",
     post: "",
     geojson: null,
+    mapFeatures: [],
     extentFeatures: [],
     timeCounts: {},
     emotionTimeData: [],
@@ -115,14 +116,19 @@ class App extends Component {
 
   handleSelectedTopic = (topicid) => {
     this.setState({ selectedTopic: topicid });
+    if (topicid !== -1) {
+      let features = this.state.extentFeatures.filter((f) => {
+        return f.properties.topic == topicid;
+      });
+      this.handleExtentFeatures(features);
+      this.setState({ mapFeatures: features });
+    } else {
+      this.handleExtentFeatures(this.state.geojson);
+      this.setState({ mapFeatures: this.state.geojson });
+    }
   };
 
   handleExtentFeatures = (features) => {
-    if (this.state.selectedTopic != -1) {
-      features = features.filter((f) => {
-        return f.properties.topic == this.state.selectedTopic;
-      });
-    }
     let avgEmotions = {
       Anger: 0.0,
       Disgust: 0.0,
@@ -187,12 +193,10 @@ class App extends Component {
   };
 
   handleSort = (sort) => {
-    console.log(sort);
     this.setState({ sortMessages: sort });
   };
 
   handleFeatureSearch = (feature, layerType, geojson) => {
-    console.log(feature);
     let filteredFeatures;
     if (layerType === "polygon" || layerType === "rectangle") {
       feature = feature.toGeoJSON();
@@ -214,11 +218,12 @@ class App extends Component {
       let options = { steps: 64, units: "meters" }; //Change steps to 4 to see what it does.
       let turfCircle = turf.circle(center, theRadius, options);
 
-      filteredFeatures = geojson.filter((f) => {
+      filteredFeatures = this.state.mapFilter.filter((f) => {
         let p = turf.point(f.geometry.coordinates);
         return turf.booleanPointInPolygon(p, turfCircle);
       });
     }
+    // console.log(filteredFeatures);
 
     if (filteredFeatures.length > 0) {
       this.handleExtentFeatures(filteredFeatures);
@@ -235,10 +240,12 @@ class App extends Component {
       });
       geojson.forEach((f) => {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
-        f["properties"]["date"] = moment(f["properties"]["created_at"]);
+        // f["properties"]["date"] = moment(f["properties"]["created_at"]);
+        f["properties"]["date"] = moment(f["properties"]["date_time"]);
       });
       // console.log(geojson);
       this.setState({ geojson: geojson });
+      this.setState({ mapFeatures: geojson });
       this.handleExtentFeatures(geojson);
     });
 
@@ -266,7 +273,7 @@ class App extends Component {
           <div className={classes.map}>
             <Map
               mapFilter={this.state.mapFilter}
-              geojson={this.state.geojson}
+              geojson={this.state.mapFeatures}
               featureName={this.state.selectedFeature}
               handleExtentFeatures={this.handleExtentFeatures}
               handleFeatureSearch={this.handleFeatureSearch}

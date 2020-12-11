@@ -9,6 +9,7 @@ const Map = (props) => {
   const geojsonLayer = React.useRef(null);
   const editableLayer = React.useRef(null);
   const layerControl = React.useRef(null);
+  const markerLayer = React.useRef(null);
   useEffect(() => {
     let grey = L.tileLayer(
       "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
@@ -45,6 +46,23 @@ const Map = (props) => {
     editableLayer.current = new L.FeatureGroup();
     mapRef.current.addLayer(editableLayer.current);
     layerControl.current.addOverlay(editableLayer.current, "Drawn Features");
+
+    markerLayer.current = L.markerClusterGroup();
+    layerControl.current.addOverlay(markerLayer.current, "Marker Clusters");
+    mapRef.current.addLayer(markerLayer.current);
+
+    let drawControl = new L.Control.Draw({
+      draw: {
+        polyline: false,
+        marker: false,
+        circlemarker: false,
+      },
+      edit: {
+        featureGroup: editableLayer.current, //REQUIRED!!
+        remove: false,
+      },
+    });
+    mapRef.current.addControl(drawControl);
     //  mapRef.current.addControl(drawControl);
   }, []);
 
@@ -79,26 +97,27 @@ const Map = (props) => {
         opacity: 1,
         fillOpacity: 0.8,
       };
-      let markers = L.markerClusterGroup();
-      layerControl.current.addOverlay(markers, "Marker Clusters");
+
       geojsonLayer.current = L.geoJSON(props.geojson, {
         onEachFeature: onEachFeature,
       });
 
       // .addTo(mapRef.current);
-      markers.addLayer(geojsonLayer.current);
+      // markers.removeLayer(geojsonLayer.current);
 
-      let heat = L.heatLayer(
-        props.geojson.map((f) => {
-          return [f.geometry.coordinates[1], f.geometry.coordinates[0], 10];
-        }),
-        { radius: 25 }
-      );
-      layerControl.current.addOverlay(heat, "Heat Map");
+      markerLayer.current.clearLayers();
+      markerLayer.current.addLayer(geojsonLayer.current);
+
+      // let heat = L.heatLayer(
+      //   props.geojson.map((f) => {
+      //     return [f.geometry.coordinates[1], f.geometry.coordinates[0], 10];
+      //   }),
+      //   { radius: 25 }
+      // );
+      // layerControl.current.addOverlay(heat, "Heat Map");
       // layerControl.current.unSelectLayer(heat)
       // heat.addTo(mapRef.current);
 
-      mapRef.current.addLayer(markers);
       mapRef.current.on(L.Draw.Event.CREATED, function (e) {
         var type = e.layerType,
           layer = e.layer;
@@ -111,19 +130,6 @@ const Map = (props) => {
 
         editableLayer.current.addLayer(layer);
       });
-
-      let drawControl = new L.Control.Draw({
-        draw: {
-          polyline: false,
-          marker: false,
-          circlemarker: false,
-        },
-        edit: {
-          featureGroup: editableLayer.current, //REQUIRED!!
-          remove: false,
-        },
-      });
-      mapRef.current.addControl(drawControl);
     }
   }, [props.geojson]);
 
