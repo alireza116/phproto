@@ -1,0 +1,6 @@
+I have made a virtual environment to hold all the required libraries for the pipeline.
+
+First of all, in this folder. Run:
+
+source venv/bin/activate
+
