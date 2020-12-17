@@ -27,7 +27,7 @@ const PieChart = (props) => {
   return (
     <ResponsivePie
       data={data}
-      margin={{ top: 40, right: 80, bottom: 40, left: 80 }}
+      margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
       innerRadius={0.5}
       padAngle={0.7}
       cornerRadius={3}
@@ -48,6 +48,7 @@ const PieChart = (props) => {
       slicesLabelsSkipAngle={10}
       slicesLabelsTextColor="#333333"
       // animate={true}
+      enableRadialLabels={false}
       enableSliceLabels={false}
       motionStiffness={90}
       motionDamping={15}

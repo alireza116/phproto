@@ -49,6 +49,7 @@ const TreeMap = (props) => {
       data={data}
       identity="topic"
       value="count"
+      colors={{ scheme: "category10" }}
       margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
       label={(t) => {
         return t.data.terms ? t.data.terms : "All Topics";
@@ -61,11 +62,13 @@ const TreeMap = (props) => {
           : "All Topics";
       }}
       labelSkipSize={12}
-      labelTextColor={{ from: "color", modifiers: [["darker", 1.2]] }}
+      // labelTextColor={{ from: "color", modifiers: [["darker", 1.2]] }}
+      labelTextColor={"black"}
       parentLabelTextColor={{ from: "color", modifiers: [["darker", 2]] }}
       borderColor={{ from: "color", modifiers: [["darker", 0.1]] }}
       animate={false}
       onClick={handleClick}
+      nodeOpacity={0.05}
     />
   );
 };

@@ -2,6 +2,7 @@ import React, { useRef, useEffect } from "react";
 import detectPeaks from "../../functions/detectpeaks";
 import * as slayer from "slayer";
 import * as d3 from "d3";
+import { selectAll } from "d3";
 
 let colorMap = {
   Anger: "red",
@@ -53,6 +54,7 @@ const StackedLineChart = (props) => {
   const y = useRef(null);
   const width = props.width || "100%";
   const height = props.height || "100%";
+  const emotions = ["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"];
 
   let parseDate = d3.timeParse("%Y-%m-%d %H");
 
@@ -85,6 +87,7 @@ const StackedLineChart = (props) => {
   useEffect(() => {
     if (d3Container.current) {
       //svg returned by this component
+      console.log(props.emotionColorMap);
       svg.current = d3.select(d3Container.current);
       areaChart.current = svg.current.append("g");
       //width of svg
@@ -106,6 +109,45 @@ const StackedLineChart = (props) => {
 
       w.current = width;
       h.current = height;
+
+      let legendItemWidth = 20;
+      let legendItemHeight = 14;
+      let legendItemGap = 3;
+
+      let legend = svg.current.append("g").attr("class", "legend");
+      let lText = svg.current.append("g").attr("class", "lText");
+
+      lText
+        .selectAll("text")
+        .data(emotions)
+        .enter()
+        .append("text")
+        .attr("x", width - margins.current.left - margins.current.right - 25)
+        .attr("y", (d, i) => {
+          return (i + 1) * (legendItemGap + legendItemHeight) + 10;
+        })
+        .attr("font-size", "10px")
+        .attr("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .text((d) => {
+          console.log(d);
+          return d;
+        });
+
+      legend
+        .selectAll("rect")
+        .data(emotions)
+        .enter()
+        .append("rect")
+        .attr("x", width - margins.current.left - margins.current.right)
+        .attr("y", (d, i) => {
+          return (i + 1) * (legendItemGap + legendItemHeight);
+        })
+        .attr("width", legendItemWidth)
+        .attr("height", legendItemHeight)
+        .attr("fill", (d) => {
+          return colorMap[d];
+        });
 
       xaxis.current = svg.current
         .append("g")
@@ -150,10 +192,9 @@ const StackedLineChart = (props) => {
       let data = props.data;
       data.sort((a, b) => a.date - b.date);
       console.log(data);
-      let series = d3
-        .stack()
-        .keys(["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"])
-        .order(d3.stackOrderAscending)(data);
+      let series = d3.stack().keys(emotions).order(d3.stackOrderAscending)(
+        data
+      );
       // let peaks = data.length > 0 ? detectPeaks(vals) : [];
 
       x.current = d3

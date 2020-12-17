@@ -3,6 +3,7 @@ import L from "leaflet";
 import MarkerCluster from "leaflet.markercluster";
 import LeafletDraw from "leaflet-draw";
 import LeafletHeat from "leaflet.heat";
+import * as d3 from "d3";
 
 const Map = (props) => {
   const mapRef = useRef(null);
@@ -47,7 +48,22 @@ const Map = (props) => {
     mapRef.current.addLayer(editableLayer.current);
     layerControl.current.addOverlay(editableLayer.current, "Drawn Features");
 
-    markerLayer.current = L.markerClusterGroup();
+    markerLayer.current = L.markerClusterGroup({
+      iconCreateFunction: function (cluster) {
+        console.log(cluster);
+        return L.divIcon({
+          className: "custom-div-icon",
+          // iconSize: [50, 50],
+          html: `<svg width=100 height=100 transform=translate(-50,-50) z-index=999>
+            <circle stroke="white" stroke-width="3" r=${25} cx=${50} cy=${50} fill="lightgrey"></circle>
+            <text font-size="15" text-anchor="middle" x=${50} y=${
+            50 + 5
+          }>${cluster.getChildCount()}</text>
+          </svg>`,
+        });
+      },
+    });
+    // + cluster.getChildCount() +
     layerControl.current.addOverlay(markerLayer.current, "Marker Clusters");
     mapRef.current.addLayer(markerLayer.current);
 

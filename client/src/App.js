@@ -12,7 +12,6 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import LineChart from "./components/timeline/timeline";
 import StackedLine from "./components/timeline/stackedLine";
-import StackedArea from "./components/timeline/stackedArea";
 import PieChart from "./components/pieChart/pieChart";
 import TopicTreeMap from "./components/topicTreeMap/topicTreeMap";
 import AppBar from "@material-ui/core/AppBar";
@@ -87,7 +86,7 @@ class App extends Component {
   state = {
     response: "",
     post: "",
-    geojson: null,
+    geojson: [],
     mapFeatures: [],
     extentFeatures: [],
     timeCounts: {},
@@ -96,7 +95,7 @@ class App extends Component {
     sortMessages: null,
     topicTerms: null,
     selectedTopic: -1,
-    tabValue: 0,
+    tabValue: 1,
     mapFilter: false,
   };
 
@@ -264,6 +263,7 @@ class App extends Component {
           height={"8%"}
           className="navBar"
           count={this.state.extentFeatures.length}
+          totalCount={this.state.geojson.length}
         ></NavBar>
         <Container
           className={classes.root}
@@ -298,6 +298,7 @@ class App extends Component {
                 <LineChart data={this.state.timeCounts}></LineChart>
               ) : (
                 <StackedLine
+                  emotionColorMap={this.emotionColorMap}
                   tabValue={this.state.tabValue}
                   data={this.state.emotionTimeData}
                 ></StackedLine>

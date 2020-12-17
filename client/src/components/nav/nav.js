@@ -44,7 +44,7 @@ export default function NavBar(props) {
             All Documents!
           </Button>
           <Typography variant="h6">
-            Count Tweets in view: {props.count}
+            Count Tweets in filter: {props.count} of {props.totalCount}
           </Typography>
         </Toolbar>
       </AppBar>
