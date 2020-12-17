@@ -3,7 +3,129 @@ import L from "leaflet";
 import MarkerCluster from "leaflet.markercluster";
 import LeafletDraw from "leaflet-draw";
 import LeafletHeat from "leaflet.heat";
+import { ResponsivePie } from "@nivo/pie";
+import { renderToString } from "react-dom/server";
 import * as d3 from "d3";
+
+let colorMap = {
+  Anger: "red",
+  Disgust: "purple",
+  Fear: "green",
+  Joy: "orange",
+  Sadness: "blue",
+  Surprise: "teal",
+};
+
+const createSimpleMarker = (cluster) => {
+  if (cluster) {
+    // let childmarkers = cluster.getAllChildMarkers();
+    // console.log(childmarkers);
+    let tempParent = d3.select("body").append("div");
+    // width=100 height=100 transform=translate(-50,-50) z-index=999
+    // <circle stroke="white" stroke-width="3" r=${25} cx=${50} cy=${50} fill="lightgrey"></circle>
+    let svg = tempParent
+      .append("svg")
+      .attr("width", 100)
+      .attr("height", 100)
+      .attr("transform", "translate(-50, -50)")
+      .attr("z-index", 999);
+    svg
+      .append("circle")
+      .attr("stroke", "white")
+      .attr("stroke-width", 3)
+      .attr("r", 25)
+      .attr("cx", 50)
+      .attr("cy", 50)
+      .attr("fill", "lightgrey");
+    svg
+      .append("text")
+      .attr("font-size", 15)
+      .attr("text-anchor", "middle")
+      .attr("x", 50)
+      .attr("y", 55)
+      .text(cluster.getChildCount());
+    // <text font-size="15" text-anchor="middle" x=${50} y=${
+
+    let nodeText = tempParent.html();
+    // console.log(nodeText);
+    tempParent.remove();
+    return nodeText;
+  }
+};
+
+const createPieMarker = (cluster) => {
+  if (cluster) {
+    let avgEmotions = {
+      Anger: 0.0,
+      Disgust: 0.0,
+      Fear: 0.0,
+      Joy: 0.0,
+      Sadness: 0.0,
+      Surprise: 0.0,
+    };
+    let childmarkers = cluster.getAllChildMarkers();
+    let childcount = cluster.getChildCount();
+    // console.log(childmarkers);
+    childmarkers.forEach((m) => {
+      let f = m.feature;
+      Object.keys(avgEmotions).forEach((k) => {
+        avgEmotions[k] += f.properties[k];
+      });
+    });
+    Object.keys(avgEmotions).forEach((k) => {
+      avgEmotions[k] = avgEmotions[k] / childcount;
+    });
+    let pieData = Object.keys(avgEmotions).map((e) => {
+      return { id: e, value: avgEmotions[e] };
+    });
+    let tempParent = d3.select("body").append("div");
+
+    let width = 50;
+    let height = 50;
+
+    let svg = tempParent
+      .append("svg")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("transform", `translate(-${width / 2}, -${height / 2})`)
+      .attr("z-index", 999)
+      .append("g")
+      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var pie = d3
+      .pie()
+      .value(function (d) {
+        return d.value;
+      })
+      .sort(null);
+
+    var arc = d3
+      .arc()
+      .innerRadius(width / 2 - 2)
+      .outerRadius(width / 2 - 20);
+
+    svg
+      .datum(pieData)
+      .selectAll("path")
+      .data(pie)
+      .enter()
+      .append("path")
+      .attr("fill", function (d, i) {
+        return colorMap[d.data.id];
+      })
+      .attr("stroke", "white")
+      .attr("d", arc)
+      .each(function (d) {
+        this._current = d;
+      });
+
+    let nodeText = tempParent.html();
+    // // console.log(nodeText);
+    tempParent.remove();
+    // console.log(nodeText);
+    return nodeText;
+  }
+};
 
 const Map = (props) => {
   const mapRef = useRef(null);
@@ -11,6 +133,7 @@ const Map = (props) => {
   const editableLayer = React.useRef(null);
   const layerControl = React.useRef(null);
   const markerLayer = React.useRef(null);
+  // createMarker();
   useEffect(() => {
     let grey = L.tileLayer(
       "https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png",
@@ -50,16 +173,17 @@ const Map = (props) => {
 
     markerLayer.current = L.markerClusterGroup({
       iconCreateFunction: function (cluster) {
-        console.log(cluster);
+        // console.log(cluster);
         return L.divIcon({
           className: "custom-div-icon",
           // iconSize: [50, 50],
-          html: `<svg width=100 height=100 transform=translate(-50,-50) z-index=999>
-            <circle stroke="white" stroke-width="3" r=${25} cx=${50} cy=${50} fill="lightgrey"></circle>
-            <text font-size="15" text-anchor="middle" x=${50} y=${
-            50 + 5
-          }>${cluster.getChildCount()}</text>
-          </svg>`,
+          // html: `<svg width=100 height=100 transform=translate(-50,-50) z-index=999>
+          //   <circle stroke="white" stroke-width="3" r=${25} cx=${50} cy=${50} fill="lightgrey"></circle>
+          //   <text font-size="15" text-anchor="middle" x=${50} y=${
+          //   50 + 5
+          // }>${cluster.getChildCount()}</text>
+          // </svg>`,
+          html: createSimpleMarker(cluster),
         });
       },
     });
@@ -79,6 +203,7 @@ const Map = (props) => {
       },
     });
     mapRef.current.addControl(drawControl);
+
     //  mapRef.current.addControl(drawControl);
   }, []);
 
