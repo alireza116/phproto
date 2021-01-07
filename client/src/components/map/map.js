@@ -199,7 +199,7 @@ const Map = (props) => {
       },
       edit: {
         featureGroup: editableLayer.current, //REQUIRED!!
-        remove: false,
+        remove: true,
       },
     });
     mapRef.current.addControl(drawControl);
