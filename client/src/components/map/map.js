@@ -204,6 +204,18 @@ const Map = (props) => {
     });
     mapRef.current.addControl(drawControl);
 
+    mapRef.current.on(L.Draw.Event.CREATED, function (e) {
+      var type = e.layerType,
+        layer = e.layer;
+
+      layer.on("click", (f) => {
+        // console.log(layerGeojson);
+        props.handleFeatureSearch(layer, type);
+      });
+
+      editableLayer.current.addLayer(layer);
+    });
+
     //  mapRef.current.addControl(drawControl);
   }, []);
 
@@ -211,7 +223,7 @@ const Map = (props) => {
 
   useEffect(() => {
     if (props.geojson) {
-      mapRef.current.setMaxBounds(mapRef.current.getBounds());
+      // mapRef.current.setMaxBounds(mapRef.current.getBounds());
       mapRef.current.on("moveend", function () {
         if (props.mapFilter) {
           let bounds = mapRef.current.getBounds();
@@ -258,21 +270,24 @@ const Map = (props) => {
       // layerControl.current.addOverlay(heat, "Heat Map");
       // layerControl.current.unSelectLayer(heat)
       // heat.addTo(mapRef.current);
-
-      mapRef.current.on(L.Draw.Event.CREATED, function (e) {
-        var type = e.layerType,
-          layer = e.layer;
-
-        layer.on("click", (f) => {
-          // console.log(layerGeojson);
-          console.log(type);
-          props.handleFeatureSearch(layer, type, props.geojson);
-        });
-
-        editableLayer.current.addLayer(layer);
-      });
     }
   }, [props.geojson]);
+
+  useEffect(() => {
+    if (props.flyFeature) {
+      // console.log(props.flyFeature);
+      let flyFeatureIndex = +props.flyFeature.index;
+      let flyFeature = props.geojson[flyFeatureIndex];
+      console.log(flyFeature);
+      mapRef.current.flyTo(
+        [
+          flyFeature.geometry.coordinates[1],
+          flyFeature.geometry.coordinates[0],
+        ],
+        8
+      );
+    }
+  }, [props.flyFeature]);
 
   return <div id="map" style={{ width: "100%", height: "100%" }}></div>;
 };

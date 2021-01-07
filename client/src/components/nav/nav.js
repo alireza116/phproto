@@ -40,8 +40,9 @@ export default function NavBar(props) {
             variant="contained"
             color="primary"
             className={classes.allTweetsButton}
+            onClick={props.handleReset}
           >
-            All Documents!
+            Reset Filter
           </Button>
           <Typography variant="h6">
             Count Tweets in filter: {props.count} of {props.totalCount}

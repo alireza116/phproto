@@ -3,6 +3,15 @@ import detectPeaks from "../../functions/detectpeaks";
 import * as slayer from "slayer";
 import * as d3 from "d3";
 
+let colorMap = {
+  Anger: "red",
+  Disgust: "purple",
+  Fear: "green",
+  Joy: "orange",
+  Sadness: "blue",
+  Surprise: "teal",
+};
+
 /* Component */
 const LineChart = (props) => {
   const d3Container = useRef(null);
@@ -12,6 +21,7 @@ const LineChart = (props) => {
   const xaxis = useRef(null);
   const yaxis = useRef(null);
   const lineChart = useRef(null);
+  const areaChart = useRef(null);
   const margins = useRef(null);
   const line = useRef(null);
   const circles = useRef(null);
@@ -19,6 +29,7 @@ const LineChart = (props) => {
   const y = useRef(null);
   const width = props.width || "100%";
   const height = props.height || "100%";
+  const emotions = ["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"];
 
   let parseDate = d3.timeParse("%Y-%m-%d %H");
 
@@ -52,6 +63,7 @@ const LineChart = (props) => {
     if (d3Container.current) {
       //svg returned by this component
       svg.current = d3.select(d3Container.current);
+      areaChart.current = svg.current.append("g");
 
       //width of svg
       const width = svg.current.node().getBoundingClientRect().width;
@@ -83,6 +95,45 @@ const LineChart = (props) => {
       //   .domain([0, d3.max(data, (d) => d.value)])
       //   .nice()
       //   .range([h.current - margins.current.bottom, margins.current.top]);
+
+      let legendItemWidth = 20;
+      let legendItemHeight = 14;
+      let legendItemGap = 3;
+
+      let legend = svg.current.append("g").attr("class", "legend");
+      let lText = svg.current.append("g").attr("class", "lText");
+
+      lText
+        .selectAll("text")
+        .data(emotions)
+        .enter()
+        .append("text")
+        .attr("x", width - margins.current.left - margins.current.right - 25)
+        .attr("y", (d, i) => {
+          return (i + 1) * (legendItemGap + legendItemHeight) + 10;
+        })
+        .attr("font-size", "10px")
+        .attr("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .text((d) => {
+          console.log(d);
+          return d;
+        });
+
+      legend
+        .selectAll("rect")
+        .data(emotions)
+        .enter()
+        .append("rect")
+        .attr("x", width - margins.current.left - margins.current.right)
+        .attr("y", (d, i) => {
+          return (i + 1) * (legendItemGap + legendItemHeight);
+        })
+        .attr("width", legendItemWidth)
+        .attr("height", legendItemHeight)
+        .attr("fill", (d) => {
+          return colorMap[d];
+        });
 
       xaxis.current = svg.current
         .append("g")
@@ -242,9 +293,33 @@ const LineChart = (props) => {
 
       circles.current.exit().remove();
 
-      if (svg.current) {
-        svg.current.call(zoom);
+      let brush = d3
+        .brushX()
+        .extent([
+          [margins.current.left, margins.current.top],
+          [w.current - margins.current.right, h.current - margins.current.top],
+        ])
+        .on("end", brushed);
+
+      areaChart.current.call(brush);
+
+      function brushed() {
+        let extent = d3.event.selection;
+        let timeExtent;
+        if (extent) {
+          timeExtent = [
+            x.current.invert(extent[0]),
+            x.current.invert(extent[1]),
+          ];
+          // console.log(timeExtent);
+          // console.log(extent);
+        }
+        props.handleSelectedTime(timeExtent);
       }
+
+      // if (svg.current) {
+      //   svg.current.call(zoom);
+      // }
 
       function zoom(svg) {
         var extent = [

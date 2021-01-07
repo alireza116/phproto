@@ -117,23 +117,6 @@ const StackedLineChart = (props) => {
       let legend = svg.current.append("g").attr("class", "legend");
       let lText = svg.current.append("g").attr("class", "lText");
 
-      lText
-        .selectAll("text")
-        .data(emotions)
-        .enter()
-        .append("text")
-        .attr("x", width - margins.current.left - margins.current.right - 25)
-        .attr("y", (d, i) => {
-          return (i + 1) * (legendItemGap + legendItemHeight) + 10;
-        })
-        .attr("font-size", "10px")
-        .attr("text-anchor", "middle")
-        .attr("font-family", "sans-serif")
-        .text((d) => {
-          console.log(d);
-          return d;
-        });
-
       legend
         .selectAll("rect")
         .data(emotions)
@@ -147,6 +130,22 @@ const StackedLineChart = (props) => {
         .attr("height", legendItemHeight)
         .attr("fill", (d) => {
           return colorMap[d];
+        });
+
+      lText
+        .selectAll("text")
+        .data(emotions)
+        .enter()
+        .append("text")
+        .attr("x", width - margins.current.left - margins.current.right - 25)
+        .attr("y", (d, i) => {
+          return (i + 1) * (legendItemGap + legendItemHeight) + 10;
+        })
+        .attr("font-size", "10px")
+        .attr("text-anchor", "middle")
+        .attr("font-family", "sans-serif")
+        .text((d) => {
+          return d;
         });
 
       xaxis.current = svg.current
@@ -228,6 +227,30 @@ const StackedLineChart = (props) => {
 
       xaxis.current.call(d3.axisBottom(x.current));
       yaxis.current.call(d3.axisLeft(y.current));
+
+      let brush = d3
+        .brushX()
+        .extent([
+          [margins.current.left, margins.current.top],
+          [w.current - margins.current.right, h.current - margins.current.top],
+        ])
+        .on("end", brushed);
+
+      areaChart.current.call(brush);
+
+      function brushed() {
+        let extent = d3.event.selection;
+        let timeExtent;
+        if (extent) {
+          timeExtent = [
+            x.current.invert(extent[0]),
+            x.current.invert(extent[1]),
+          ];
+          // console.log(timeExtent);
+          // console.log(extent);
+        }
+        props.handleSelectedTime(timeExtent);
+      }
     }
   }, [props.data]);
 

@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: "2.5px",
     paddingBottom: "2.5px",
     borderLeft: "solid 5px",
+    cursor: "pointer",
   },
   messageText: {
     fontFamily: "sans-serif",
@@ -34,18 +35,26 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MessageList(props) {
   const classes = useStyles();
-  if (props.sortMessages) {
-    props.messages.sort((a, b) => {
-      return (
-        +b.properties[props.sortMessages] - +a.properties[props.sortMessages]
-      );
-    });
-  }
+  // if (props.sortMessages) {
+  //   props.messages.sort((a, b) => {
+  //     return (
+  //       +b.properties[props.sortMessages] - +a.properties[props.sortMessages]
+  //     );
+  //   });
+  // }
+
+  let handleClick = (e) => {
+    console.log(e);
+  };
 
   let listItems = props.messages.slice(0, 100).map((f, i) => {
     return (
       <div
-        key={`li_t_${i}`}
+        key={i}
+        data-index={i}
+        onClick={(ev) => {
+          props.handleFly(ev.currentTarget.dataset);
+        }}
         className={classes.messages}
         style={{
           borderLeftColor:

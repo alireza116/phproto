@@ -17,6 +17,7 @@ import TopicTreeMap from "./components/topicTreeMap/topicTreeMap";
 import AppBar from "@material-ui/core/AppBar";
 
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import { filter } from "d3";
 
 let borderColor = "grey";
 let parseDate = d3.timeParse("%Y-%m-%d %H");
@@ -97,6 +98,8 @@ class App extends Component {
     selectedTopic: -1,
     tabValue: 1,
     mapFilter: false,
+    timeExtent: [],
+    flyFeature: null,
   };
 
   emotionColorMap = {
@@ -106,6 +109,15 @@ class App extends Component {
     Joy: "orange",
     Sadness: "blue",
     Surprise: "teal",
+  };
+
+  handleFly = (flyFeatureIndex) => {
+    this.setState({ flyFeature: flyFeatureIndex });
+  };
+
+  handleReset = () => {
+    this.handleExtentFeatures(this.state.geojson);
+    this.setState({ mapFeatures: this.state.geojson });
   };
 
   handleLineChartTabChange = (event, newValue) => {
@@ -124,6 +136,21 @@ class App extends Component {
     } else {
       this.handleExtentFeatures(this.state.geojson);
       this.setState({ mapFeatures: this.state.geojson });
+    }
+  };
+
+  handleSelectedTime = (timeExtent) => {
+    if (timeExtent) {
+      let filter = this.state.extentFeatures.filter((f) => {
+        return (
+          f.properties.date > d3.min(timeExtent) &&
+          f.properties.date < d3.max(timeExtent)
+        );
+      });
+      this.setState({ mapFeatures: filter });
+      this.handleExtentFeatures(filter);
+    } else {
+      this.setState({ mapFeatures: this.state.extentFeatures });
     }
   };
 
@@ -195,13 +222,13 @@ class App extends Component {
     this.setState({ sortMessages: sort });
   };
 
-  handleFeatureSearch = (feature, layerType, geojson) => {
+  handleFeatureSearch = (feature, layerType) => {
     let filteredFeatures;
     if (layerType === "polygon" || layerType === "rectangle") {
       feature = feature.toGeoJSON();
       feature = turf.polygon(feature.geometry.coordinates);
 
-      filteredFeatures = geojson.filter((f) => {
+      filteredFeatures = this.state.mapFeatures.filter((f) => {
         let p = turf.point(f.geometry.coordinates);
         return turf.booleanPointInPolygon(p, feature);
       });
@@ -214,10 +241,10 @@ class App extends Component {
 
       let theRadius = feature.getRadius();
       console.log(theRadius);
-      let options = { steps: 64, units: "meters" }; //Change steps to 4 to see what it does.
+      let options = { steps: 32, units: "meters" }; //Change steps to 4 to see what it does.
       let turfCircle = turf.circle(center, theRadius, options);
 
-      filteredFeatures = this.state.mapFilter.filter((f) => {
+      filteredFeatures = this.state.mapFeatures.filter((f) => {
         let p = turf.point(f.geometry.coordinates);
         return turf.booleanPointInPolygon(p, turfCircle);
       });
@@ -226,6 +253,7 @@ class App extends Component {
 
     if (filteredFeatures.length > 0) {
       this.handleExtentFeatures(filteredFeatures);
+      this.setState({ mapFeatures: filteredFeatures });
     }
   };
 
@@ -260,6 +288,7 @@ class App extends Component {
     return (
       <div className="app" style={{ height: "100%" }}>
         <NavBar
+          handleReset={this.handleReset}
           height={"8%"}
           className="navBar"
           count={this.state.extentFeatures.length}
@@ -277,6 +306,7 @@ class App extends Component {
               featureName={this.state.selectedFeature}
               handleExtentFeatures={this.handleExtentFeatures}
               handleFeatureSearch={this.handleFeatureSearch}
+              flyFeature={this.state.flyFeature}
             ></Map>
           </div>
           <div className={classes.line}>
@@ -295,9 +325,13 @@ class App extends Component {
             {/* */}
             <div className={classes.linePanels}>
               {this.state.tabValue === 0 ? (
-                <LineChart data={this.state.timeCounts}></LineChart>
+                <LineChart
+                  data={this.state.timeCounts}
+                  handleSelectedTime={this.handleSelectedTime}
+                ></LineChart>
               ) : (
                 <StackedLine
+                  handleSelectedTime={this.handleSelectedTime}
                   emotionColorMap={this.emotionColorMap}
                   tabValue={this.state.tabValue}
                   data={this.state.emotionTimeData}
@@ -314,6 +348,7 @@ class App extends Component {
           </div>
           <div className={classes.messages}>
             <MessageList
+              handleFly={this.handleFly}
               emotionColorMap={this.emotionColorMap}
               sortMessages={this.state.sortMessages}
               messages={this.state.extentFeatures}
