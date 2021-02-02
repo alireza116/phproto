@@ -52,6 +52,7 @@ const StackedLineChart = (props) => {
   const area = useRef(null);
   const x = useRef(null);
   const y = useRef(null);
+  const brush = useRef(null);
   const width = props.width || "100%";
   const height = props.height || "100%";
   const emotions = ["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"];
@@ -116,6 +117,11 @@ const StackedLineChart = (props) => {
 
       let legend = svg.current.append("g").attr("class", "legend");
       let lText = svg.current.append("g").attr("class", "lText");
+      area.current = d3
+        .area()
+        .x((d) => x(d.data.date))
+        .y0((d) => y(d[0]))
+        .y1((d) => y(d[1]));
 
       legend
         .selectAll("rect")
@@ -172,11 +178,30 @@ const StackedLineChart = (props) => {
         .attr("height", h.current);
       // append the rectangles for the bar chart
 
-      area.current = d3
-        .area()
-        .x((d) => x(d.data.date))
-        .y0((d) => y(d[0]))
-        .y1((d) => y(d[1]));
+      brush.current = d3
+        .brushX()
+        .extent([
+          [margins.current.left, margins.current.top],
+          [w.current - margins.current.right, h.current - margins.current.top],
+        ])
+        .on("end", brushed);
+
+      svg.current.append("g").attr("class", "brush").call(brush.current);
+
+      function brushed() {
+        let extent = d3.event.selection;
+        let timeExtent;
+        if (extent) {
+          timeExtent = [
+            x.current.invert(extent[0]),
+            x.current.invert(extent[1]),
+          ];
+          // console.log(timeExtent);
+          // console.log(extent);
+          brush.current.clear(d3.select(".brush"));
+        }
+        props.handleSelectedTime(timeExtent);
+      }
     }
   }, [props.tabValue]);
 
@@ -228,29 +253,15 @@ const StackedLineChart = (props) => {
       xaxis.current.call(d3.axisBottom(x.current));
       yaxis.current.call(d3.axisLeft(y.current));
 
-      let brush = d3
-        .brushX()
-        .extent([
-          [margins.current.left, margins.current.top],
-          [w.current - margins.current.right, h.current - margins.current.top],
-        ])
-        .on("end", brushed);
-
-      areaChart.current.call(brush);
-
-      function brushed() {
-        let extent = d3.event.selection;
-        let timeExtent;
-        if (extent) {
-          timeExtent = [
-            x.current.invert(extent[0]),
-            x.current.invert(extent[1]),
-          ];
-          // console.log(timeExtent);
-          // console.log(extent);
-        }
-        props.handleSelectedTime(timeExtent);
-      }
+      // let brush = d3
+      //   .brushX()
+      //   .extent([
+      //     [margins.current.left, margins.current.top],
+      //     [w.current - margins.current.right, h.current - margins.current.top],
+      //   ])
+      //   .on("end", brushed);
+      // areaChart.current.append("g").attr("class", "brush").call(brush);
+      // areaChart.current.call(brush);
     }
   }, [props.data]);
 

@@ -100,6 +100,7 @@ class App extends Component {
     mapFilter: false,
     timeExtent: [],
     flyFeature: null,
+    hoverTopic: null,
   };
 
   emotionColorMap = {
@@ -113,6 +114,11 @@ class App extends Component {
 
   handleFly = (flyFeatureIndex) => {
     this.setState({ flyFeature: flyFeatureIndex });
+  };
+
+  handleHoverTopic = (hoverTopic) => {
+    console.log(hoverTopic);
+    this.setState({ hoverTopic: hoverTopic });
   };
 
   handleReset = () => {
@@ -341,6 +347,7 @@ class App extends Component {
           </div>
           <div className={classes.treemap}>
             <TopicTreeMap
+              hoverTopic={this.state.hoverTopic}
               data={this.state.extentFeatures}
               topicTerms={this.state.topicTerms}
               handleSelectedTopic={this.handleSelectedTopic}
@@ -349,9 +356,11 @@ class App extends Component {
           <div className={classes.messages}>
             <MessageList
               handleFly={this.handleFly}
+              handleHoverTopic={this.handleHoverTopic}
               emotionColorMap={this.emotionColorMap}
               sortMessages={this.state.sortMessages}
               messages={this.state.extentFeatures}
+              topicTerms={this.state.topicTerms}
             ></MessageList>
           </div>
           <div className={classes.pie}>

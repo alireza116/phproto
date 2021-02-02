@@ -27,6 +27,7 @@ const LineChart = (props) => {
   const circles = useRef(null);
   const x = useRef(null);
   const y = useRef(null);
+  const brush = useRef(null);
   const width = props.width || "100%";
   const height = props.height || "100%";
   const emotions = ["Sadness", "Anger", "Joy", "Surprise", "Disgust", "Fear"];
@@ -172,6 +173,31 @@ const LineChart = (props) => {
         .attr("clip-path", "url(#clip)")
         .attr("stroke", "steelblue")
         .attr("stroke-width", 1.5);
+
+      brush.current = d3
+        .brushX()
+        .extent([
+          [margins.current.left, margins.current.top],
+          [w.current - margins.current.right, h.current - margins.current.top],
+        ])
+        .on("end", brushed);
+
+      svg.current.append("g").attr("class", "brush").call(brush.current);
+
+      function brushed() {
+        let extent = d3.event.selection;
+        let timeExtent;
+        if (extent) {
+          timeExtent = [
+            x.current.invert(extent[0]),
+            x.current.invert(extent[1]),
+          ];
+          // console.log(timeExtent);
+          // console.log(extent);
+          brush.current.clear(d3.select(".brush"));
+        }
+        props.handleSelectedTime(timeExtent);
+      }
     }
   }, []);
 
@@ -293,29 +319,29 @@ const LineChart = (props) => {
 
       circles.current.exit().remove();
 
-      let brush = d3
-        .brushX()
-        .extent([
-          [margins.current.left, margins.current.top],
-          [w.current - margins.current.right, h.current - margins.current.top],
-        ])
-        .on("end", brushed);
+      // let brush = d3
+      //   .brushX()
+      //   .extent([
+      //     [margins.current.left, margins.current.top],
+      //     [w.current - margins.current.right, h.current - margins.current.top],
+      //   ])
+      //   .on("end", brushed);
 
-      areaChart.current.call(brush);
+      // areaChart.current.call(brush);
 
-      function brushed() {
-        let extent = d3.event.selection;
-        let timeExtent;
-        if (extent) {
-          timeExtent = [
-            x.current.invert(extent[0]),
-            x.current.invert(extent[1]),
-          ];
-          // console.log(timeExtent);
-          // console.log(extent);
-        }
-        props.handleSelectedTime(timeExtent);
-      }
+      // function brushed() {
+      //   let extent = d3.event.selection;
+      //   let timeExtent;
+      //   if (extent) {
+      //     timeExtent = [
+      //       x.current.invert(extent[0]),
+      //       x.current.invert(extent[1]),
+      //     ];
+      //     // console.log(timeExtent);
+      //     // console.log(extent);
+      //   }
+      //   props.handleSelectedTime(timeExtent);
+      // }
 
       // if (svg.current) {
       //   svg.current.call(zoom);

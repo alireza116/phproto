@@ -45,7 +45,8 @@ export default function NavBar(props) {
             Reset Filter
           </Button>
           <Typography variant="h6">
-            Count Tweets in filter: {props.count} of {props.totalCount}
+            {props.count} of {props.totalCount} tweets visible in the current
+            map extent
           </Typography>
         </Toolbar>
       </AppBar>
