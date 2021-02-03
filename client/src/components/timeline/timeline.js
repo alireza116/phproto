@@ -183,6 +183,7 @@ const LineChart = (props) => {
         .on("end", brushed);
 
       svg.current.append("g").attr("class", "brush").call(brush.current);
+      console.log("ali");
 
       function brushed() {
         let extent = d3.event.selection;
