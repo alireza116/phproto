@@ -220,7 +220,8 @@ const LineChart = (props) => {
 
       y.current = d3
         .scaleLinear()
-        .domain([0, yAxisTier(d3.max(data, (d) => d.value))])
+        // .domain([0, yAxisTier(d3.max(data, (d) => d.value))])
+        .domain([0, d3.max(data, (d) => d.value)])
         .nice()
         .range([h.current - margins.current.bottom, margins.current.top]);
 

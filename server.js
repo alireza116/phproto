@@ -10,19 +10,21 @@ console.log(__dirname);
 
 let rawdata = fs.readFileSync(
   // path.join(__dirname, "public/vietEmotGeoTopic_2.json"),
-  path.join(__dirname, "public/vietEmotGeoTopic.json"),
+  path.join(__dirname, "public/processed_data_feb_23.json"),
   {
     encoding: "utf-8",
   }
 );
+// console.log(rawdata);
 
 let topicTermsDict = fs.readFileSync(
   // path.join(__dirname, "public/vietEmotGeoTopic2_topicDict.json"),
-  path.join(__dirname, "public/topicDict.json"),
+  path.join(__dirname, "public/topicTermDict_feb_23.json"),
   {
     encoding: "utf-8",
   }
 );
+// console.log(topicTermsDict);
 
 let geojson = JSON.parse(rawdata);
 topicTermsDict = JSON.parse(topicTermsDict);

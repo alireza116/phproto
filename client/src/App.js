@@ -94,7 +94,7 @@ class App extends Component {
     emotionTimeData: [],
     avgEmotions: null,
     sortMessages: null,
-    topicTerms: null,
+    topicTerms: { 0: 0 },
     selectedTopic: -1,
     tabValue: 1,
     mapFilter: false,
@@ -273,8 +273,8 @@ class App extends Component {
       });
       geojson.forEach((f) => {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
-        // f["properties"]["date"] = moment(f["properties"]["created_at"]);
-        f["properties"]["date"] = moment(f["properties"]["date_time"]);
+        f["properties"]["date"] = moment(f["properties"]["created_at"]);
+        // f["properties"]["date"] = moment(f["properties"]["date_time"]);
       });
       // console.log(geojson);
       this.setState({ geojson: geojson });
@@ -283,7 +283,7 @@ class App extends Component {
     });
 
     axios.get("/api/topics").then((res) => {
-      console.log(res.data[1]);
+      console.log(res.data);
       this.setState({ topicTerms: res.data });
     });
   }

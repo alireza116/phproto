@@ -228,7 +228,9 @@ const StackedLineChart = (props) => {
 
       y.current = d3
         .scaleLinear()
-        .domain([0, yAxisTier(d3.max(series, (d) => d3.max(d, (d) => d[1])))])
+        // .domain([0, yAxisTier(d3.max(series, (d) => d3.max(d, (d) => d[1])))])
+        .domain([0, d3.max(series, (d) => d3.max(d, (d) => d[1]))])
+
         .nice()
         .range([h.current - margins.current.bottom, margins.current.top]);
 

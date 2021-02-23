@@ -26,8 +26,10 @@ const TreeMap = (props) => {
   let topicCounts = {};
   if (features != null) {
     features.forEach((d) => {
+      console.log(d);
       let id = d.properties.topic;
       //   .toString();
+      console.log(id);
       if (!(id in topicCounts)) {
         topicCounts[id] = 1;
       } else {

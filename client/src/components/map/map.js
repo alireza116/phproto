@@ -29,6 +29,7 @@ const createSimpleMarker = (cluster) => {
       .attr("height", 100)
       .attr("transform", "translate(-50, -50)")
       .attr("z-index", 999);
+
     svg
       .append("circle")
       .attr("stroke", "white")
@@ -37,6 +38,7 @@ const createSimpleMarker = (cluster) => {
       .attr("cx", 50)
       .attr("cy", 50)
       .attr("fill", "lightgrey");
+
     svg
       .append("text")
       .attr("font-size", 15)
@@ -80,8 +82,8 @@ const createPieMarker = (cluster) => {
     });
     let tempParent = d3.select("body").append("div");
 
-    let width = 50;
-    let height = 50;
+    let width = 60;
+    let height = 60;
 
     let svg = tempParent
       .append("svg")
@@ -101,8 +103,8 @@ const createPieMarker = (cluster) => {
 
     var arc = d3
       .arc()
-      .innerRadius(width / 2 - 2)
-      .outerRadius(width / 2 - 20);
+      .innerRadius(width / 2 - 15)
+      .outerRadius(width / 2);
 
     svg
       .datum(pieData)
@@ -118,6 +120,14 @@ const createPieMarker = (cluster) => {
       .each(function (d) {
         this._current = d;
       });
+
+    svg
+      .append("text")
+      .attr("font-size", 15)
+      .attr("text-anchor", "middle")
+      .attr("x", 0)
+      .attr("y", 0)
+      .text(childcount);
 
     let nodeText = tempParent.html();
     // // console.log(nodeText);
@@ -181,7 +191,7 @@ const Map = (props) => {
           //   50 + 5
           // }>${cluster.getChildCount()}</text>
           // </svg>`,
-          html: createSimpleMarker(cluster),
+          html: createPieMarker(cluster),
         });
       },
     });
