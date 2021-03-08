@@ -137,7 +137,7 @@ export default function MessageList(props) {
         }}
       >
         <p key={`date_t_${i}`} className={classes.messageText}>
-          {f.properties.date_time}
+          {f.properties.date.format("dddd, MMMM Do YYYY, h:mm:ss a")}
         </p>
         <p key={`p_t_${i}`} className={classes.messageText}>
           {parseString(f.properties.text)}
