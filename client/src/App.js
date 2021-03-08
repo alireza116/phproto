@@ -273,7 +273,10 @@ class App extends Component {
       });
       geojson.forEach((f) => {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
-        f["properties"]["date"] = moment(f["properties"]["created_at"]);
+        // f["properties"]["date"] = moment(f["properties"]["created_at"]);
+        f["properties"]["date"] = moment(f["properties"]["time"]);
+
+        // time
         // f["properties"]["date"] = moment(f["properties"]["date_time"]);
       });
       // console.log(geojson);

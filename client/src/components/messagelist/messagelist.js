@@ -7,6 +7,17 @@ import PieChart from "../pieChart/pieChart";
 // import ListItemText from "@material-ui/core/ListItemText";
 // import { Card, Divider } from "@material-ui/core";
 
+var parser = new DOMParser();
+
+function parseString(encodedString) {
+  var dom = parser.parseFromString(
+    "<!doctype html><body>" + encodedString,
+    "text/html"
+  );
+  var decodedString = dom.body.textContent;
+  return decodedString;
+}
+
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
@@ -129,7 +140,7 @@ export default function MessageList(props) {
           {f.properties.date_time}
         </p>
         <p key={`p_t_${i}`} className={classes.messageText}>
-          {f.properties.text}
+          {parseString(f.properties.text)}
         </p>
       </div>
     );
