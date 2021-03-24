@@ -51,8 +51,8 @@ const TreeMap = (props) => {
       // colors={{ scheme: "category10" }}
       colors={(t) => {
         // console.log(+t.data.topic);
-        console.log(props.hoverTopic);
-        console.log(+t.data.topic);
+        // console.log(props.hoverTopic);
+        // console.log(+t.data.topic);
         return +t.data.topic === props.hoverTopic ? "brown" : "grey";
       }}
       margin={{ top: 10, right: 10, bottom: 10, left: 10 }}

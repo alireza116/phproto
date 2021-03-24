@@ -91,7 +91,7 @@ export default function MessageList(props) {
 
   const handleMouseEnter = (ev) => {
     // setTipLeft(ev.pageX);
-    console.log(ev.currentTarget.dataset);
+
     let hi = props.messages[+ev.currentTarget.dataset.index];
     props.handleHoverTopic(hi.properties.topic);
     let hEmotions = {};
@@ -100,8 +100,6 @@ export default function MessageList(props) {
     });
     setHoverEmotions(hEmotions);
     setHoverItem(hi);
-
-    console.log(ev.currentTarget.getBoundingClientRect().top);
     // setTipTop(ev.pageY);
     setTipTop(ev.currentTarget.getBoundingClientRect().top);
   };
@@ -117,6 +115,8 @@ export default function MessageList(props) {
       setTipLeft(bounds.left - 200 - 20);
     }
   }, [parentNode]);
+
+  console.log(props.messages);
 
   let listItems = props.messages.slice(0, 100).map((f, i) => {
     return (

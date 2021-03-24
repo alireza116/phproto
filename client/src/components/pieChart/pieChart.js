@@ -21,7 +21,7 @@ const PieChart = (props) => {
   };
   let data = props.data
     ? Object.keys(props.data).map((key) => {
-        console.log(key);
+        // console.log(key);
         return { id: key, value: +props.data[key] };
       })
     : [{ id: "str", value: 100 }];

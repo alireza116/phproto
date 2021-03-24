@@ -32,11 +32,15 @@ let topicTermsDict = fs.readFileSync(
 let geojson = JSON.parse(rawdata);
 topicTermsDict = JSON.parse(topicTermsDict);
 
+geojson.features = geojson.features.filter((f) => {
+  return f.properties.clean_text !== "";
+});
 // geojson.forEach((f) => {
 //   let date = moment(f["properties"]["date_time"]);
 //   f["properties"]["date"] = moment(f["properties"]["date_time"]);
 // });
 // console.log(geojson[0]);
+geojson.forEac;
 const app = express();
 const port = process.env.PORT || 5000;
 
