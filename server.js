@@ -11,10 +11,7 @@ console.log(__dirname);
 let rawdata = fs.readFileSync(
   // path.join(__dirname, "public/vietEmotGeoTopic_2.json"),
   // path.join(__dirname, "public/processed_data_feb_23.json"),
-  path.join(
-    __dirname,
-    "public/Mekong3_Filtered_Translated_227_processed.geojson"
-  ),
+  path.join(__dirname, "public/dataset_combined_3_23_2021.geojson"),
   {
     encoding: "utf-8",
   }
@@ -24,10 +21,7 @@ let rawdata = fs.readFileSync(
 let topicTermsDict = fs.readFileSync(
   // path.join(__dirname, "public/vietEmotGeoTopic2_topicDict.json"),
   // path.join(__dirname, "public/topicTermDict_feb_23.json"),
-  path.join(
-    __dirname,
-    "public/Mekong3_Filtered_Translated_227_topicTermDict.json"
-  ),
+  path.join(__dirname, "public/dataset_combined_3_23_2021_topicDict.json"),
 
   {
     encoding: "utf-8",

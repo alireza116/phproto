@@ -21,7 +21,8 @@ const PieChart = (props) => {
   };
   let data = props.data
     ? Object.keys(props.data).map((key) => {
-        return { id: key, value: props.data[key].toFixed(3) };
+        console.log(key);
+        return { id: key, value: +props.data[key] };
       })
     : [{ id: "str", value: 100 }];
   return (

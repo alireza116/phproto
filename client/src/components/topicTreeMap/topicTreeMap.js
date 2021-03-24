@@ -1,6 +1,5 @@
 import React from "react";
 import { ResponsiveTreeMap } from "@nivo/treemap";
-import { timeThursday } from "d3";
 
 // make sure parent container have a defined height when using
 // responsive component, otherwise height will be 0 and
@@ -26,10 +25,8 @@ const TreeMap = (props) => {
   let topicCounts = {};
   if (features != null) {
     features.forEach((d) => {
-      console.log(d);
       let id = d.properties.topic;
-      //   .toString();
-      console.log(id);
+
       if (!(id in topicCounts)) {
         topicCounts[id] = 1;
       } else {

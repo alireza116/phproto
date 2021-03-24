@@ -188,7 +188,7 @@ class App extends Component {
       let fEmotions = [];
       let fEmotVals = [];
       Object.keys(avgEmotions).forEach((k) => {
-        avgEmotions[k] += f.properties[k];
+        avgEmotions[k] += +f.properties[k];
         fEmotions.push({ emotion: k, value: f.properties[k] });
         fEmotVals.push(f.properties[k]);
       });
@@ -204,6 +204,7 @@ class App extends Component {
       Object.keys(emotionTimeCounts[dateValue]).forEach((emot) => {
         d[emot] = emotionTimeCounts[dateValue][emot];
       });
+
       Object.keys(avgEmotions).forEach((emot) => {
         if (!(emot in d)) {
           d[emot] = 0;
@@ -217,6 +218,8 @@ class App extends Component {
     Object.keys(avgEmotions).forEach((k) => {
       avgEmotions[k] = avgEmotions[k] / features.length;
     });
+
+    console.log(avgEmotions);
 
     this.setState({ timeCounts: timeCounts });
     this.setState({ avgEmotions: avgEmotions });
@@ -265,7 +268,8 @@ class App extends Component {
 
   componentDidMount() {
     axios.get("/api/data").then((res) => {
-      let geojson = res.data.filter((f) => {
+      // console.log(res.data);
+      let geojson = res.data.features.filter((f) => {
         return !(
           (f.geometry.coordinates[0] == undefined) &
           (f.geometry.coordinates[1] == undefined)
@@ -275,7 +279,10 @@ class App extends Component {
         f["properties"]["point"] = turf.point(f["geometry"]["coordinates"]);
         // f["properties"]["date"] = moment(f["properties"]["created_at"]);
         f["properties"]["date"] = moment(f["properties"]["time"]);
-
+        Object.keys(this.emotionColorMap).forEach((key) => {
+          f["properties"][key] = +f["properties"][key];
+        });
+        f["properties"]["topic"] = f["properties"]["topic_id"];
         // time
         // f["properties"]["date"] = moment(f["properties"]["date_time"]);
       });

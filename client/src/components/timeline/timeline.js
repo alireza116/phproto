@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from "react";
 import detectPeaks from "../../functions/detectpeaks";
-import * as slayer from "slayer";
 import * as d3 from "d3";
 
 let colorMap = {
