@@ -82,6 +82,7 @@ const styles = (theme) => ({
     height: "85%",
   },
 });
+
 class App extends Component {
   state = {
     response: "",
@@ -100,6 +101,7 @@ class App extends Component {
     timeExtent: [],
     flyFeature: null,
     hoverTopic: null,
+    mapEmotionMarker: true,
   };
 
   emotionColorMap = {
@@ -111,25 +113,32 @@ class App extends Component {
     Surprise: "teal",
   };
 
+  handleMapEmotionMarker = (newMapEmotionMarker) => {
+    this.setState({ mapEmotionMarker: newMapEmotionMarker });
+  };
+
+  //this functions moves the map to the selected position
   handleFly = (flyFeatureIndex) => {
     this.setState({ flyFeature: flyFeatureIndex });
   };
-
+  //this functions shows the pie chart for hovered item in the message list
   handleHoverTopic = (hoverTopic) => {
     console.log(hoverTopic);
     this.setState({ hoverTopic: hoverTopic });
   };
-
+  //this functions resets the data
   handleReset = () => {
     this.handleExtentFeatures(this.state.geojson);
     this.setState({ mapFeatures: this.state.geojson });
   };
 
+  //this functions changes the tab for line chart
   handleLineChartTabChange = (event, newValue) => {
     console.log(newValue);
     this.setState({ tabValue: newValue });
   };
 
+  //this functions filters the data based on selected topic
   handleSelectedTopic = (topicid) => {
     this.setState({ selectedTopic: topicid });
     if (topicid !== -1) {
@@ -144,6 +153,7 @@ class App extends Component {
     }
   };
 
+  // this function selected time extent
   handleSelectedTime = (timeExtent) => {
     if (timeExtent) {
       let filter = this.state.extentFeatures.filter((f) => {
@@ -159,6 +169,7 @@ class App extends Component {
     }
   };
 
+  // VERY important function filters data based on time and map extent and then sets all other variables.
   handleExtentFeatures = (features) => {
     let avgEmotions = {
       Anger: 0.0,
@@ -186,6 +197,7 @@ class App extends Component {
       timeCounts[d] ? timeCounts[d]++ : (timeCounts[d] = 1);
       let fEmotions = [];
       let fEmotVals = [];
+
       Object.keys(avgEmotions).forEach((k) => {
         avgEmotions[k] += +f.properties[k];
         fEmotions.push({ emotion: k, value: f.properties[k] });
@@ -226,6 +238,7 @@ class App extends Component {
     this.setState({ emotionTimeData: emotionTimeData });
   };
 
+  // sets sorting variable for message list
   handleSort = (sort) => {
     console.log(sort);
     if (this.state.sortMessages !== sort) {
@@ -235,6 +248,7 @@ class App extends Component {
     }
   };
 
+  // handles searching features based on geometry type
   handleFeatureSearch = (feature, layerType) => {
     let filteredFeatures;
     if (layerType === "polygon" || layerType === "rectangle") {
@@ -271,8 +285,8 @@ class App extends Component {
   };
 
   componentDidMount() {
+    //gets the data from the API
     axios.get("/api/data").then((res) => {
-      // console.log(res.data);
       let geojson = res.data.features.filter((f) => {
         return !(
           (f.geometry.coordinates[0] == undefined) &
@@ -296,6 +310,7 @@ class App extends Component {
       this.handleExtentFeatures(geojson);
     });
 
+    //gets topics from API
     axios.get("/api/topics").then((res) => {
       console.log(res.data);
       this.setState({ topicTerms: res.data });
@@ -313,6 +328,7 @@ class App extends Component {
           className="navBar"
           count={this.state.extentFeatures.length}
           totalCount={this.state.geojson.length}
+          handleMapEmotionMarker={this.handleMapEmotionMarker}
         ></NavBar>
         <Container
           className={classes.root}
@@ -327,6 +343,7 @@ class App extends Component {
               handleExtentFeatures={this.handleExtentFeatures}
               handleFeatureSearch={this.handleFeatureSearch}
               flyFeature={this.state.flyFeature}
+              mapEmotionMarker={this.state.mapEmotionMarker}
             ></Map>
           </div>
           <div className={classes.line}>

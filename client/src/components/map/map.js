@@ -16,128 +16,124 @@ let colorMap = {
   Surprise: "teal",
 };
 
-const createSimpleMarker = (cluster) => {
-  if (cluster) {
-    // let childmarkers = cluster.getAllChildMarkers();
-    // console.log(childmarkers);
-    let tempParent = d3.select("body").append("div");
-    // width=100 height=100 transform=translate(-50,-50) z-index=999
-    // <circle stroke="white" stroke-width="3" r=${25} cx=${50} cy=${50} fill="lightgrey"></circle>
-    let svg = tempParent
-      .append("svg")
-      .attr("width", 100)
-      .attr("height", 100)
-      .attr("transform", "translate(-50, -50)")
-      .attr("z-index", 999);
-
-    svg
-      .append("circle")
-      .attr("stroke", "white")
-      .attr("stroke-width", 3)
-      .attr("r", 25)
-      .attr("cx", 50)
-      .attr("cy", 50)
-      .attr("fill", "lightgrey");
-
-    svg
-      .append("text")
-      .attr("font-size", 15)
-      .attr("text-anchor", "middle")
-      .attr("x", 50)
-      .attr("y", 55)
-      .text(cluster.getChildCount());
-    // <text font-size="15" text-anchor="middle" x=${50} y=${
-
-    let nodeText = tempParent.html();
-    // console.log(nodeText);
-    tempParent.remove();
-    return nodeText;
-  }
-};
-
-const createPieMarker = (cluster) => {
-  if (cluster) {
-    let avgEmotions = {
-      Anger: 0.0,
-      Disgust: 0.0,
-      Fear: 0.0,
-      Joy: 0.0,
-      Sadness: 0.0,
-      Surprise: 0.0,
-    };
-    let childmarkers = cluster.getAllChildMarkers();
-    let childcount = cluster.getChildCount();
-    // console.log(childmarkers);
-    childmarkers.forEach((m) => {
-      let f = m.feature;
-      Object.keys(avgEmotions).forEach((k) => {
-        avgEmotions[k] += f.properties[k];
-      });
-    });
-    Object.keys(avgEmotions).forEach((k) => {
-      avgEmotions[k] = avgEmotions[k] / childcount;
-    });
-    let pieData = Object.keys(avgEmotions).map((e) => {
-      return { id: e, value: avgEmotions[e] };
-    });
-    let tempParent = d3.select("body").append("div");
-
-    let width = 60;
-    let height = 60;
-
-    let svg = tempParent
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("transform", `translate(-${width / 2}, -${height / 2})`)
-      .attr("z-index", 999)
-      .append("g")
-      .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-
-    var pie = d3
-      .pie()
-      .value(function (d) {
-        return d.value;
-      })
-      .sort(null);
-
-    var arc = d3
-      .arc()
-      .innerRadius(width / 2 - 15)
-      .outerRadius(width / 2);
-
-    svg
-      .datum(pieData)
-      .selectAll("path")
-      .data(pie)
-      .enter()
-      .append("path")
-      .attr("fill", function (d, i) {
-        return colorMap[d.data.id];
-      })
-      .attr("stroke", "white")
-      .attr("d", arc)
-      .each(function (d) {
-        this._current = d;
-      });
-
-    svg
-      .append("text")
-      .attr("font-size", 15)
-      .attr("text-anchor", "middle")
-      .attr("x", 0)
-      .attr("y", 0)
-      .text(childcount);
-
-    let nodeText = tempParent.html();
-    // // console.log(nodeText);
-    tempParent.remove();
-    // console.log(nodeText);
-    return nodeText;
-  }
-};
-
 const Map = (props) => {
+  const createSimpleMarker = (cluster) => {
+    if (cluster) {
+      let tempParent = d3.select("body").append("div");
+
+      let svg = tempParent
+        .append("svg")
+        .attr("width", 100)
+        .attr("height", 100)
+        .attr("transform", "translate(-50, -50)")
+        .attr("z-index", 999);
+
+      svg
+        .append("circle")
+        .attr("stroke", "white")
+        .attr("stroke-width", 3)
+        .attr("r", 25)
+        .attr("cx", 50)
+        .attr("cy", 50)
+        .attr("fill", "lightgrey");
+
+      svg
+        .append("text")
+        .attr("font-size", 15)
+        .attr("text-anchor", "middle")
+        .attr("x", 50)
+        .attr("y", 55)
+        .text(cluster.getChildCount());
+      // <text font-size="15" text-anchor="middle" x=${50} y=${
+
+      let nodeText = tempParent.html();
+      // console.log(nodeText);
+      tempParent.remove();
+      return nodeText;
+    }
+  };
+
+  const createPieMarker = (cluster) => {
+    if (cluster) {
+      let avgEmotions = {
+        Anger: 0.0,
+        Disgust: 0.0,
+        Fear: 0.0,
+        Joy: 0.0,
+        Sadness: 0.0,
+        Surprise: 0.0,
+      };
+      let childmarkers = cluster.getAllChildMarkers();
+      let childcount = cluster.getChildCount();
+      // console.log(childmarkers);
+      childmarkers.forEach((m) => {
+        let f = m.feature;
+        Object.keys(avgEmotions).forEach((k) => {
+          avgEmotions[k] += f.properties[k];
+        });
+      });
+      Object.keys(avgEmotions).forEach((k) => {
+        avgEmotions[k] = avgEmotions[k] / childcount;
+      });
+      let pieData = Object.keys(avgEmotions).map((e) => {
+        return { id: e, value: avgEmotions[e] };
+      });
+      let tempParent = d3.select("body").append("div");
+
+      let width = 60;
+      let height = 60;
+
+      let svg = tempParent
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .attr("transform", `translate(-${width / 2}, -${height / 2})`)
+        .attr("z-index", 999)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+      var pie = d3
+        .pie()
+        .value(function (d) {
+          return d.value;
+        })
+        .sort(null);
+
+      var arc = d3
+        .arc()
+        .innerRadius(width / 2 - 15)
+        .outerRadius(width / 2);
+
+      svg
+        .datum(pieData)
+        .selectAll("path")
+        .data(pie)
+        .enter()
+        .append("path")
+        .attr("fill", function (d, i) {
+          return colorMap[d.data.id];
+        })
+        .attr("stroke", "white")
+        .attr("d", arc)
+        .each(function (d) {
+          this._current = d;
+        });
+
+      svg
+        .append("text")
+        .attr("font-size", 15)
+        .attr("text-anchor", "middle")
+        .attr("x", 0)
+        .attr("y", 0)
+        .text(childcount);
+
+      let nodeText = tempParent.html();
+      // // console.log(nodeText);
+      tempParent.remove();
+      // console.log(nodeText);
+      return nodeText;
+    }
+  };
   const mapRef = useRef(null);
   const geojsonLayer = React.useRef(null);
   const editableLayer = React.useRef(null);
@@ -179,25 +175,7 @@ const Map = (props) => {
     mapRef.current.addLayer(editableLayer.current);
     layerControl.current.addOverlay(editableLayer.current, "Drawn Features");
 
-    markerLayer.current = L.markerClusterGroup({
-      iconCreateFunction: function (cluster) {
-        // console.log(cluster);
-        return L.divIcon({
-          className: "custom-div-icon",
-          // iconSize: [50, 50],
-          // html: `<svg width=100 height=100 transform=translate(-50,-50) z-index=999>
-          //   <circle stroke="white" stroke-width="3" r=${25} cx=${50} cy=${50} fill="lightgrey"></circle>
-          //   <text font-size="15" text-anchor="middle" x=${50} y=${
-          //   50 + 5
-          // }>${cluster.getChildCount()}</text>
-          // </svg>`,
-          html: createPieMarker(cluster),
-        });
-      },
-    });
     // + cluster.getChildCount() +
-    layerControl.current.addOverlay(markerLayer.current, "Marker Clusters");
-    mapRef.current.addLayer(markerLayer.current);
 
     let drawControl = new L.Control.Draw({
       draw: {
@@ -227,6 +205,25 @@ const Map = (props) => {
     //  mapRef.current.addControl(drawControl);
   }, []);
 
+  useEffect(() => {
+    if (markerLayer.current) {
+      layerControl.current.removeLayer(markerLayer.current);
+      mapRef.current.removeLayer(markerLayer.current);
+    }
+
+    markerLayer.current = L.markerClusterGroup({
+      iconCreateFunction: function (cluster) {
+        return L.divIcon({
+          className: "custom-div-icon",
+          html: props.mapEmotionMarker
+            ? createPieMarker(cluster)
+            : createSimpleMarker(cluster),
+        });
+      },
+    });
+    layerControl.current.addOverlay(markerLayer.current, "Marker Clusters");
+    mapRef.current.addLayer(markerLayer.current);
+  }, [props.mapEmotionMarker]);
   //   add marker
 
   useEffect(() => {
@@ -245,7 +242,6 @@ const Map = (props) => {
         }
       });
       function onEachFeature(feature, layer) {
-        // does this feature have a property named popupContent?
         if (feature.properties) {
           layer.bindPopup(feature.properties.text);
         }
@@ -263,23 +259,10 @@ const Map = (props) => {
         onEachFeature: onEachFeature,
       });
 
-      // .addTo(mapRef.current);
-      // markers.removeLayer(geojsonLayer.current);
-
       markerLayer.current.clearLayers();
       markerLayer.current.addLayer(geojsonLayer.current);
-
-      // let heat = L.heatLayer(
-      //   props.geojson.map((f) => {
-      //     return [f.geometry.coordinates[1], f.geometry.coordinates[0], 10];
-      //   }),
-      //   { radius: 25 }
-      // );
-      // layerControl.current.addOverlay(heat, "Heat Map");
-      // layerControl.current.unSelectLayer(heat)
-      // heat.addTo(mapRef.current);
     }
-  }, [props.geojson]);
+  }, [props.geojson, props.mapEmotionMarker]);
 
   useEffect(() => {
     if (props.flyFeature) {
