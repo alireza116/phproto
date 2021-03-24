@@ -35,6 +35,7 @@ topicTermsDict = JSON.parse(topicTermsDict);
 geojson.features = geojson.features.filter((f) => {
   return f.properties.clean_text !== "";
 });
+
 // geojson.forEach((f) => {
 //   let date = moment(f["properties"]["date_time"]);
 //   f["properties"]["date"] = moment(f["properties"]["date_time"]);

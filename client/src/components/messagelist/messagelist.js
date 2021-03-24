@@ -71,13 +71,17 @@ export default function MessageList(props) {
     Sadness: 0.0,
     Surprise: 0.0,
   });
-  // if (props.sortMessages) {
-  //   props.messages.sort((a, b) => {
-  //     return (
-  //       +b.properties[props.sortMessages] - +a.properties[props.sortMessages]
-  //     );
-  //   });
-  // }
+  console.log(props.sortMessages);
+  // console.log(props.messages);
+  let messages = [...props.messages];
+  if (props.sortMessages) {
+    console.log(props.sortMessages);
+    messages.sort((a, b) => {
+      return (
+        +b.properties[props.sortMessages] - +a.properties[props.sortMessages]
+      );
+    });
+  }
 
   const handleClick = (ev) => {
     // console.log(ev);
@@ -92,7 +96,7 @@ export default function MessageList(props) {
   const handleMouseEnter = (ev) => {
     // setTipLeft(ev.pageX);
 
-    let hi = props.messages[+ev.currentTarget.dataset.index];
+    let hi = messages[+ev.currentTarget.dataset.index];
     props.handleHoverTopic(hi.properties.topic);
     let hEmotions = {};
     Object.keys(hoverEmotions).forEach((k) => {
@@ -116,16 +120,11 @@ export default function MessageList(props) {
     }
   }, [parentNode]);
 
-  console.log(props.messages);
-
-  let listItems = props.messages.slice(0, 100).map((f, i) => {
+  let listItems = messages.slice(0, 100).map((f, i) => {
     return (
       <div
         key={i}
         data-index={i}
-        // onClick={(ev) => {
-        //   props.handleFly(ev.currentTarget.dataset);
-        // }}
         onMouseOver={handleMouseOver}
         onMouseLeave={handleMouseLeave}
         onMouseEnter={handleMouseEnter}
@@ -158,9 +157,6 @@ export default function MessageList(props) {
         id="tooltip"
         className={classes.tooltip}
       >
-        {/* {hoverItem !== null
-          ? props.topicTerms[hoverItem.properties.topic]
-          : null} */}
         <PieChart data={hoverEmotions}></PieChart>
       </div>
     </div>

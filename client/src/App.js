@@ -16,8 +16,7 @@ import PieChart from "./components/pieChart/pieChart";
 import TopicTreeMap from "./components/topicTreeMap/topicTreeMap";
 import AppBar from "@material-ui/core/AppBar";
 
-import { makeStyles, withStyles } from "@material-ui/core/styles";
-import { filter } from "d3";
+import { withStyles } from "@material-ui/core/styles";
 
 let borderColor = "grey";
 let parseDate = d3.timeParse("%Y-%m-%d %H");
@@ -93,7 +92,7 @@ class App extends Component {
     timeCounts: {},
     emotionTimeData: [],
     avgEmotions: null,
-    sortMessages: null,
+    sortMessages: undefined,
     topicTerms: { 0: 0 },
     selectedTopic: -1,
     tabValue: 1,
@@ -228,7 +227,12 @@ class App extends Component {
   };
 
   handleSort = (sort) => {
-    this.setState({ sortMessages: sort });
+    console.log(sort);
+    if (this.state.sortMessages !== sort) {
+      this.setState({ sortMessages: sort });
+    } else {
+      this.setState({ sortMessages: undefined });
+    }
   };
 
   handleFeatureSearch = (feature, layerType) => {
